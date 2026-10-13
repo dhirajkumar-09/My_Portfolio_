@@ -1,118 +1,162 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 
 /**
  * ============================================================================
- * SHAPE GENERATOR FUNCTIONS
- * Each generator populates a Float32Array of length (count * 3) with [x, y, z]
- * coordinates in 3D object space (approx radius: 110 - 150 units).
+ * SHAPE GENERATORS (Structured & Height-Sorted for Liquid-Smooth Morphing)
+ * Pre-sorted along the Y-axis so particles flow like fluid metal into each shape
+ * rather than scattering into chaotic noise.
  * ============================================================================
  */
 
-// 1. Fibonacci Sphere: perfectly uniform particle distribution on a sphere
-function generateSphere(count, radius = 135) {
-  const positions = new Float32Array(count * 3);
+// 1. Fibonacci Sphere
+function generateSphere(count, radius = 130) {
+  const points = [];
   const goldenRatio = (1 + Math.sqrt(5)) / 2;
   const angleIncrement = Math.PI * 2 * goldenRatio;
 
   for (let i = 0; i < count; i++) {
-    // Distance from south to north pole (-1 to +1)
-    const y = 1 - (i / (count - 1 || 1)) * 2;
+    const y = 1 - (i / (count - 1 || 1)) * 2; // -1 to +1
     const radiusAtY = Math.sqrt(Math.max(0, 1 - y * y));
     const phi = i * angleIncrement;
-
-    const x = Math.cos(phi) * radiusAtY;
-    const z = Math.sin(phi) * radiusAtY;
-
-    const idx = i * 3;
-    positions[idx] = x * radius;
-    positions[idx + 1] = y * radius;
-    positions[idx + 2] = z * radius;
+    const x = Math.cos(phi) * radiusAtY * radius;
+    const z = Math.sin(phi) * radiusAtY * radius;
+    points.push({ x, y: y * radius, z });
   }
-  return positions;
+
+  // Sort by Y ascending for coherent topological flow
+  points.sort((a, b) => a.y - b.y);
+
+  const buffer = new Float32Array(count * 3);
+  points.forEach((p, i) => {
+    buffer[i * 3] = p.x;
+    buffer[i * 3 + 1] = p.y;
+    buffer[i * 3 + 2] = p.z;
+  });
+  return buffer;
 }
 
-// 2. Cube: random points uniformly distributed across the 6 faces
-function generateCube(count, size = 115) {
-  const positions = new Float32Array(count * 3);
+// 2. Structured Cyber Cube (Sharp Edges + Face Grid)
+function generateCube(count, size = 110) {
+  const points = [];
   const half = size;
 
-  for (let i = 0; i < count; i++) {
-    const face = Math.floor(Math.random() * 6);
-    // u and v in [-half, half]
-    const u = (Math.random() * 2 - 1) * half;
-    const v = (Math.random() * 2 - 1) * half;
+  // Allocate 40% particles to the 12 wireframe edges for razor-sharp definition
+  const edgeCount = Math.floor(count * 0.42);
+  const faceCount = count - edgeCount;
 
+  // 12 edges
+  for (let i = 0; i < edgeCount; i++) {
+    const edge = Math.floor(Math.random() * 12);
+    const t = Math.random() * 2 - 1; // [-1, +1]
     let x = 0, y = 0, z = 0;
-    switch (face) {
-      case 0: x = half; y = u; z = v; break;   // +X
-      case 1: x = -half; y = u; z = v; break;  // -X
-      case 2: x = u; y = half; z = v; break;   // +Y
-      case 3: x = u; y = -half; z = v; break;  // -Y
-      case 4: x = u; y = v; z = half; break;   // +Z
-      case 5: x = u; y = v; z = -half; break;  // -Z
+
+    switch (edge) {
+      case 0: x = t * half; y = -half; z = -half; break;
+      case 1: x = t * half; y = half; z = -half; break;
+      case 2: x = t * half; y = -half; z = half; break;
+      case 3: x = t * half; y = half; z = half; break;
+      case 4: x = -half; y = t * half; z = -half; break;
+      case 5: x = half; y = t * half; z = -half; break;
+      case 6: x = -half; y = t * half; z = half; break;
+      case 7: x = half; y = t * half; z = half; break;
+      case 8: x = -half; y = -half; z = t * half; break;
+      case 9: x = half; y = -half; z = t * half; break;
+      case 10: x = -half; y = half; z = t * half; break;
+      case 11: x = half; y = half; z = t * half; break;
       default: break;
     }
-
-    const idx = i * 3;
-    positions[idx] = x;
-    positions[idx + 1] = y;
-    positions[idx + 2] = z;
+    points.push({ x, y, z });
   }
-  return positions;
+
+  // 6 faces
+  for (let i = 0; i < faceCount; i++) {
+    const face = Math.floor(Math.random() * 6);
+    const u = (Math.random() * 2 - 1) * half;
+    const v = (Math.random() * 2 - 1) * half;
+    let x = 0, y = 0, z = 0;
+
+    switch (face) {
+      case 0: x = half; y = u; z = v; break;
+      case 1: x = -half; y = u; z = v; break;
+      case 2: x = u; y = half; z = v; break;
+      case 3: x = u; y = -half; z = v; break;
+      case 4: x = u; y = v; z = half; break;
+      case 5: x = u; y = v; z = -half; break;
+      default: break;
+    }
+    points.push({ x, y, z });
+  }
+
+  points.sort((a, b) => a.y - b.y);
+
+  const buffer = new Float32Array(count * 3);
+  points.forEach((p, i) => {
+    buffer[i * 3] = p.x;
+    buffer[i * 3 + 1] = p.y;
+    buffer[i * 3 + 2] = p.z;
+  });
+  return buffer;
 }
 
-// 3. Torus (Donut): Major radius R, minor tube radius r
-function generateTorus(count, majorRadius = 110, minorRadius = 45) {
-  const positions = new Float32Array(count * 3);
+// 3. Torus (Donut Ring)
+function generateTorus(count, majorRadius = 115, minorRadius = 45) {
+  const points = [];
 
   for (let i = 0; i < count; i++) {
-    const u = Math.random() * Math.PI * 2; // Angle around main ring
-    const v = Math.random() * Math.PI * 2; // Angle around tube cross-section
+    const u = Math.random() * Math.PI * 2;
+    const v = Math.random() * Math.PI * 2;
 
     const x = (majorRadius + minorRadius * Math.cos(v)) * Math.cos(u);
     const y = minorRadius * Math.sin(v);
     const z = (majorRadius + minorRadius * Math.cos(v)) * Math.sin(u);
-
-    const idx = i * 3;
-    positions[idx] = x;
-    positions[idx + 1] = y;
-    positions[idx + 2] = z;
+    points.push({ x, y, z });
   }
-  return positions;
+
+  points.sort((a, b) => a.y - b.y);
+
+  const buffer = new Float32Array(count * 3);
+  points.forEach((p, i) => {
+    buffer[i * 3] = p.x;
+    buffer[i * 3 + 1] = p.y;
+    buffer[i * 3 + 2] = p.z;
+  });
+  return buffer;
 }
 
-// 4. Double Helix (DNA): Two interlocking helical strands with connecting base-pair rungs
-function generateDoubleHelix(count, radius = 70, height = 280, turns = 2.5) {
-  const positions = new Float32Array(count * 3);
+// 4. Double Helix (DNA with connecting rungs)
+function generateDoubleHelix(count, radius = 70, height = 260, turns = 2.4) {
+  const points = [];
 
   for (let i = 0; i < count; i++) {
-    const isRung = i % 5 === 0; // 20% particles form bridge rungs between strands
-    const t = (i / (count - 1 || 1)) * 2 - 1; // Normalized height [-1, +1]
+    const t = (i / (count - 1 || 1)) * 2 - 1; // -1 to +1
     const y = t * (height / 2);
     const angle = t * Math.PI * 2 * turns;
 
+    const isRung = i % 5 === 0; // 20% connecting ladder rungs
     let x = 0, z = 0;
+
     if (isRung) {
-      // Linear bridge between Strand 1 and Strand 2
       const interp = (Math.random() * 2 - 1);
       x = Math.cos(angle) * radius * interp;
       z = Math.sin(angle) * radius * interp;
     } else {
-      // Strand 1 (phase 0) or Strand 2 (phase PI)
-      const strandPhase = (i % 2 === 0) ? 0 : Math.PI;
-      x = Math.cos(angle + strandPhase) * radius;
-      z = Math.sin(angle + strandPhase) * radius;
+      const phase = (i % 2 === 0) ? 0 : Math.PI; // Strand A or Strand B
+      x = Math.cos(angle + phase) * radius;
+      z = Math.sin(angle + phase) * radius;
     }
-
-    const idx = i * 3;
-    positions[idx] = x;
-    positions[idx + 1] = y;
-    positions[idx + 2] = z;
+    points.push({ x, y, z });
   }
-  return positions;
+
+  // Already ordered along Y
+  const buffer = new Float32Array(count * 3);
+  points.forEach((p, i) => {
+    buffer[i * 3] = p.x;
+    buffer[i * 3 + 1] = p.y;
+    buffer[i * 3 + 2] = p.z;
+  });
+  return buffer;
 }
 
-// Map of shape generator functions
 const SHAPE_GENERATORS = {
   SPHERE: generateSphere,
   CUBE: generateCube,
@@ -120,10 +164,10 @@ const SHAPE_GENERATORS = {
   'DOUBLE HELIX': generateDoubleHelix
 };
 
-// Smoothstep easing for fluid, organic transitions: 3t^2 - 2t^3
+// Smoothstep interpolation formula: 3t^2 - 2t^3
 function smoothstep(t) {
-  const clamped = Math.max(0, Math.min(1, t));
-  return clamped * clamped * (3 - 2 * clamped);
+  const c = Math.max(0, Math.min(1, t));
+  return c * c * (3 - 2 * c);
 }
 
 /**
@@ -134,58 +178,31 @@ function smoothstep(t) {
 export default function ParticleMorph({
   count = 640,
   colors = {
-    primary: '#22ff99',       // Neon terminal green
-    highlight: '#eafff4',     // Bright white-green sparkle
-    glow: 'rgba(34, 255, 153, 0.08)' // Ambient backdrop glow
+    primary: '#22ff99',              // Neon terminal green
+    highlight: '#eafff4',            // Bright white-green sparkle
+    glow: 'rgba(34, 255, 153, 0.08)' // Soft ambient depth glow
   },
-  holdTime = 2500,           // Time (ms) to showcase each shape statically
-  morphTime = 1500,          // Time (ms) to transition between shapes
+  holdTime = 2500,                  // Hold time on each shape (ms)
+  morphTime = 1400,                 // Fluid morph duration (ms)
   shapes = ['SPHERE', 'CUBE', 'TORUS', 'DOUBLE HELIX'],
   className = '',
   style = {}
 }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
+  const labelRef = useRef(null); // Direct DOM ref for zero-rerender text updates
 
-  // Responsive particle count: fewer particles on mobile devices for peak 60fps
+  // Responsive particle count
   const effectiveCount = useMemo(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      return Math.min(count, 360);
+      return Math.min(count, 350);
     }
     return count;
   }, [count]);
 
-  // Current shape display name for the terminal UI overlay
-  const [currentShapeName, setCurrentShapeName] = useState(shapes[0] || 'SPHERE');
-
-  // Precompute target buffers for each shape (zero allocations in loop)
-  const shapeBuffers = useMemo(() => {
-    const buffers = {};
-    shapes.forEach((name) => {
-      const generator = SHAPE_GENERATORS[name.toUpperCase()] || generateSphere;
-      buffers[name] = generator(effectiveCount);
-    });
-    return buffers;
-  }, [shapes, effectiveCount]);
-
-  // Per-particle static metadata (jitter offsets, highlights)
-  const particleMeta = useMemo(() => {
-    const jitterSeeds = new Float32Array(effectiveCount * 3);
-    const isHighlight = new Uint8Array(effectiveCount);
-
-    for (let i = 0; i < effectiveCount; i++) {
-      const idx = i * 3;
-      // Organic random curl vector for morph dispersion
-      jitterSeeds[idx] = (Math.random() * 2 - 1) * 35;
-      jitterSeeds[idx + 1] = (Math.random() * 2 - 1) * 35;
-      jitterSeeds[idx + 2] = (Math.random() * 2 - 1) * 35;
-
-      // ~14% particles rendered in ultra-bright highlight color
-      isHighlight[i] = Math.random() < 0.14 ? 1 : 0;
-    }
-
-    return { jitterSeeds, isHighlight };
-  }, [effectiveCount]);
+  // Keep references to props so useEffect runs ONCE without remounting on prop changes
+  const propsRef = useRef({ colors, holdTime, morphTime, shapes });
+  propsRef.current = { colors, holdTime, morphTime, shapes };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -195,18 +212,34 @@ export default function ParticleMorph({
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    // Check user preference for reduced motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const currentShapes = propsRef.current.shapes;
 
-    // Canvas dimensions & device pixel ratio
+    // Generate shape coordinate buffers
+    const buffers = currentShapes.map((name) => {
+      const gen = SHAPE_GENERATORS[name.toUpperCase()] || generateSphere;
+      return gen(effectiveCount);
+    });
+
+    // Particle static metadata
+    const isHighlight = new Uint8Array(effectiveCount);
+    const noiseSeeds = new Float32Array(effectiveCount * 3);
+    for (let i = 0; i < effectiveCount; i++) {
+      isHighlight[i] = Math.random() < 0.12 ? 1 : 0;
+      // Gentle harmonic dispersion amplitude (max 18px, smooth waves)
+      noiseSeeds[i * 3] = (Math.random() * 2 - 1) * 16;
+      noiseSeeds[i * 3 + 1] = (Math.random() * 2 - 1) * 16;
+      noiseSeeds[i * 3 + 2] = (Math.random() * 2 - 1) * 16;
+    }
+
+    // High DPI Canvas Scaling
     let width = 0;
     let height = 0;
-    let dpr = window.devicePixelRatio || 1;
+    let dpr = 1;
 
-    const updateCanvasSize = () => {
+    const updateSize = () => {
       const rect = container.getBoundingClientRect();
-      width = rect.width;
-      height = rect.height;
+      width = rect.width || 400;
+      height = rect.height || 380;
       dpr = Math.min(window.devicePixelRatio || 1, 2);
 
       canvas.width = Math.floor(width * dpr);
@@ -214,37 +247,33 @@ export default function ParticleMorph({
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
 
-      ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform matrix
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
     };
 
-    updateCanvasSize();
+    updateSize();
 
-    // Use ResizeObserver for responsive dimension sync
-    const resizeObserver = new ResizeObserver(() => {
-      updateCanvasSize();
-    });
+    const resizeObserver = new ResizeObserver(() => updateSize());
     resizeObserver.observe(container);
 
-    // Visibility management: pause when offscreen or tab hidden
+    // Pause when off-screen or tab hidden
     let isVisible = true;
     const intersectionObserver = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          isVisible = entry.isIntersecting;
+        entries.forEach((e) => {
+          isVisible = e.isIntersecting;
         });
       },
       { threshold: 0.05 }
     );
     intersectionObserver.observe(canvas);
 
-    const handleVisibilityChange = () => {
-      if (document.hidden) isVisible = false;
-      else isVisible = true;
+    const handleVisibility = () => {
+      isVisible = !document.hidden;
     };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibility);
 
-    // Mouse / Touch parallax interaction state
+    // Pointer Parallax
     let targetParallaxX = 0;
     let targetParallaxY = 0;
     let currentParallaxX = 0;
@@ -252,10 +281,10 @@ export default function ParticleMorph({
 
     const handlePointerMove = (e) => {
       const rect = container.getBoundingClientRect();
-      const normX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      const normY = ((e.clientY - rect.top) / rect.height) * 2 - 1;
-      targetParallaxX = normX * 0.45;
-      targetParallaxY = -normY * 0.35;
+      const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const ny = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+      targetParallaxX = nx * 0.45;
+      targetParallaxY = -ny * 0.35;
     };
 
     const handlePointerLeave = () => {
@@ -267,170 +296,160 @@ export default function ParticleMorph({
     container.addEventListener('pointerleave', handlePointerLeave);
 
     // ========================================================================
-    // PRE-ALLOCATED TYPED BUFFERS (0 allocations in requestAnimationFrame loop)
+    // STATEFUL ANIMATION BUFFERS (Lives entirely in useEffect scope)
     // ========================================================================
     const currentPositions = new Float32Array(effectiveCount * 3);
-    const initialBuffer = shapeBuffers[shapes[0]] || shapeBuffers[Object.keys(shapeBuffers)[0]];
-    currentPositions.set(initialBuffer);
+    currentPositions.set(buffers[0]); // Start at first shape (SPHERE)
 
-    let currentShapeIndex = 0;
-    let nextShapeIndex = (currentShapeIndex + 1) % shapes.length;
-
-    let sourceBuffer = shapeBuffers[shapes[currentShapeIndex]];
-    let targetBuffer = shapeBuffers[shapes[nextShapeIndex]];
-
-    let phaseStartTime = performance.now();
+    let shapeIdx = 0;
+    let nextIdx = (shapeIdx + 1) % buffers.length;
     let isMorphing = false;
+    let phaseStart = performance.now();
 
-    // Continuous 3D rotation state
-    let rotX = 0.22;
+    // Initial label set
+    if (labelRef.current) {
+      labelRef.current.textContent = currentShapes[0];
+    }
+
+    // 3D Rotation State
     let rotY = 0;
-    const baseRotSpeedY = 0.007;
+    let rotX = 0.22;
+    const rotSpeedY = 0.007;
 
-    // Camera Perspective projection settings
     const fov = 380;
     const cameraZ = 360;
 
-    let animFrameId;
+    let animId;
 
     // ========================================================================
-    // MAIN RENDER LOOP
+    // HIGH-PERFORMANCE 60FPS RENDER LOOP
     // ========================================================================
     const render = (now) => {
-      animFrameId = requestAnimationFrame(render);
-
-      // Skip render calculations when off-screen or tab hidden
+      animId = requestAnimationFrame(render);
       if (!isVisible) return;
 
-      const elapsed = now - phaseStartTime;
+      const { holdTime, morphTime } = propsRef.current;
+      const elapsed = now - phaseStart;
 
-      if (!prefersReducedMotion) {
-        if (!isMorphing) {
-          // HOLD PHASE: Show current shape
-          if (elapsed >= holdTime) {
-            isMorphing = true;
-            phaseStartTime = now;
-            sourceBuffer = shapeBuffers[shapes[currentShapeIndex]];
-            targetBuffer = shapeBuffers[shapes[nextShapeIndex]];
-          }
-        } else {
-          // MORPH PHASE: Smoothly interpolate towards next shape
-          const progress = Math.min(elapsed / morphTime, 1);
-          const easeProgress = smoothstep(progress);
+      if (!isMorphing) {
+        // HOLD PHASE: Show current shape
+        if (elapsed >= holdTime) {
+          isMorphing = true;
+          phaseStart = now;
+        }
+      } else {
+        // MORPH PHASE: Liquid interpolation between shapeIdx & nextIdx
+        const progress = Math.min(elapsed / morphTime, 1);
+        const ease = smoothstep(progress);
+        const wave = Math.sin(progress * Math.PI); // 0 -> 1 -> 0
 
-          // Bell-curve envelope for organic dispersion noise: peak at midpoint (progress = 0.5)
-          const dispersion = Math.sin(progress * Math.PI);
+        const source = buffers[shapeIdx];
+        const target = buffers[nextIdx];
 
-          const { jitterSeeds } = particleMeta;
+        for (let i = 0; i < effectiveCount; i++) {
+          const idx = i * 3;
+          const sx = source[idx];
+          const sy = source[idx + 1];
+          const sz = source[idx + 2];
 
-          for (let i = 0; i < effectiveCount; i++) {
-            const idx = i * 3;
-            const sx = sourceBuffer[idx];
-            const sy = sourceBuffer[idx + 1];
-            const sz = sourceBuffer[idx + 2];
+          const tx = target[idx];
+          const ty = target[idx + 1];
+          const tz = target[idx + 2];
 
-            const tx = targetBuffer[idx];
-            const ty = targetBuffer[idx + 1];
-            const tz = targetBuffer[idx + 2];
+          // Gentle harmonic wave during transition
+          const jx = noiseSeeds[idx] * wave;
+          const jy = noiseSeeds[idx + 1] * wave;
+          const jz = noiseSeeds[idx + 2] * wave;
 
-            const jx = jitterSeeds[idx] * dispersion;
-            const jy = jitterSeeds[idx + 1] * dispersion;
-            const jz = jitterSeeds[idx + 2] * dispersion;
-
-            // Smoothstep LERP + organic curl noise
-            currentPositions[idx] = sx + (tx - sx) * easeProgress + jx;
-            currentPositions[idx + 1] = sy + (ty - sy) * easeProgress + jy;
-            currentPositions[idx + 2] = sz + (tz - sz) * easeProgress + jz;
-          }
-
-          if (progress >= 1) {
-            // Morph complete: snap to exact target and advance index
-            currentPositions.set(targetBuffer);
-            isMorphing = false;
-            phaseStartTime = now;
-            currentShapeIndex = nextShapeIndex;
-            nextShapeIndex = (currentShapeIndex + 1) % shapes.length;
-            setCurrentShapeName(shapes[currentShapeIndex]);
-          }
+          currentPositions[idx] = sx + (tx - sx) * ease + jx;
+          currentPositions[idx + 1] = sy + (ty - sy) * ease + jy;
+          currentPositions[idx + 2] = sz + (tz - sz) * ease + jz;
         }
 
-        // Inertia damping for mouse parallax
-        currentParallaxX += (targetParallaxX - currentParallaxX) * 0.06;
-        currentParallaxY += (targetParallaxY - currentParallaxY) * 0.06;
+        if (progress >= 1) {
+          // Snap exact coordinates & advance to next shape
+          currentPositions.set(target);
+          isMorphing = false;
+          phaseStart = now;
+          shapeIdx = nextIdx;
+          nextIdx = (shapeIdx + 1) % buffers.length;
 
-        // Auto-rotation around Y + subtle tilt on X
-        rotY += baseRotSpeedY;
+          // Update DOM label directly without triggering React re-render
+          if (labelRef.current) {
+            labelRef.current.textContent = currentShapes[shapeIdx];
+          }
+        }
       }
 
-      // Clear previous canvas frame
+      // Parallax smoothing & continuous spin
+      currentParallaxX += (targetParallaxX - currentParallaxX) * 0.06;
+      currentParallaxY += (targetParallaxY - currentParallaxY) * 0.06;
+      rotY += rotSpeedY;
+
+      // Clear frame
       ctx.clearRect(0, 0, width, height);
 
       const cx = width / 2;
       const cy = height / 2;
 
-      // Optional soft radial depth glow behind particle cloud
-      if (colors.glow) {
-        const glowRadius = Math.min(width, height) * 0.45;
-        const radial = ctx.createRadialGradient(cx, cy, 10, cx, cy, glowRadius);
-        radial.addColorStop(0, colors.glow);
+      // Soft ambient radial glow
+      const { colors: currentColors } = propsRef.current;
+      if (currentColors.glow) {
+        const glowRad = Math.min(width, height) * 0.45;
+        const radial = ctx.createRadialGradient(cx, cy, 10, cx, cy, glowRad);
+        radial.addColorStop(0, currentColors.glow);
         radial.addColorStop(1, 'transparent');
         ctx.fillStyle = radial;
         ctx.fillRect(0, 0, width, height);
       }
 
-      // Precalculate combined rotation angles (rotation + parallax)
-      const effectiveRotX = rotX + currentParallaxY;
-      const effectiveRotY = rotY + currentParallaxX;
+      // 3D Rotation matrices
+      const effRotX = rotX + currentParallaxY;
+      const effRotY = rotY + currentParallaxX;
+      const cosX = Math.cos(effRotX);
+      const sinX = Math.sin(effRotX);
+      const cosY = Math.cos(effRotY);
+      const sinY = Math.sin(effRotY);
 
-      const cosX = Math.cos(effectiveRotX);
-      const sinX = Math.sin(effectiveRotX);
-      const cosY = Math.cos(effectiveRotY);
-      const sinY = Math.sin(effectiveRotY);
-
-      const { isHighlight } = particleMeta;
-
-      // ======================================================================
-      // 3D TRANSFORM, PERSPECTIVE PROJECTION & RENDER
-      // ======================================================================
+      // Render all 3D particles
       for (let i = 0; i < effectiveCount; i++) {
         const idx = i * 3;
         const ox = currentPositions[idx];
         const oy = currentPositions[idx + 1];
         const oz = currentPositions[idx + 2];
 
-        // 1. Rotate around Y axis
+        // 1. Rotate Y
         const x1 = ox * cosY + oz * sinY;
         const y1 = oy;
         const z1 = -ox * sinY + oz * cosY;
 
-        // 2. Rotate around X axis
+        // 2. Rotate X
         const x2 = x1;
         const y2 = y1 * cosX - z1 * sinX;
         const z2 = y1 * sinX + z1 * cosX;
 
-        // 3. Perspective Projection: camera at (0, 0, cameraZ)
+        // 3. Perspective Projection
         const depth = z2 + cameraZ;
-        if (depth <= 10) continue; // Behind near clipping plane
+        if (depth <= 10) continue;
 
         const scale = fov / depth;
         const projX = cx + x2 * scale;
         const projY = cy + y2 * scale;
 
-        // Depth cueing: particles closer to camera are larger & brighter
-        // Normalized depth range: [-1, +1] approx
+        // Depth cueing
         const normZ = Math.max(-1, Math.min(1, z2 / 160));
-        const alpha = Math.max(0.18, Math.min(1, 0.6 + normZ * 0.4));
-        const radius = Math.max(0.7, (1.8 + normZ * 0.9) * scale * 0.7);
+        const alpha = Math.max(0.2, Math.min(1, 0.65 + normZ * 0.35));
+        const radius = Math.max(0.8, (1.85 + normZ * 0.9) * scale * 0.7);
 
         ctx.beginPath();
         ctx.arc(projX, projY, radius, 0, Math.PI * 2);
 
         if (isHighlight[i] === 1) {
-          ctx.fillStyle = colors.highlight;
-          ctx.shadowColor = colors.highlight;
+          ctx.fillStyle = currentColors.highlight;
+          ctx.shadowColor = currentColors.highlight;
           ctx.shadowBlur = 4;
         } else {
-          ctx.fillStyle = colors.primary;
+          ctx.fillStyle = currentColors.primary;
           ctx.shadowBlur = 0;
         }
 
@@ -442,28 +461,17 @@ export default function ParticleMorph({
       ctx.shadowBlur = 0;
     };
 
-    animFrameId = requestAnimationFrame(render);
+    animId = requestAnimationFrame(render);
 
-    // ========================================================================
-    // CLEANUP ON UNMOUNT
-    // ========================================================================
     return () => {
-      cancelAnimationFrame(animFrameId);
+      cancelAnimationFrame(animId);
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibility);
       container.removeEventListener('pointermove', handlePointerMove);
       container.removeEventListener('pointerleave', handlePointerLeave);
     };
-  }, [
-    effectiveCount,
-    shapeBuffers,
-    shapes,
-    holdTime,
-    morphTime,
-    colors,
-    particleMeta
-  ]);
+  }, [effectiveCount]); // Runs cleanly ONCE for the canvas lifecycle!
 
   return (
     <div
@@ -481,7 +489,9 @@ export default function ParticleMorph({
       <div className="absolute top-3.5 left-4 pointer-events-none z-10 flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-950/80 backdrop-blur-md border border-emerald-500/20 font-mono text-[11px] text-emerald-400 tracking-wider shadow-sm">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
         <span className="text-slate-400 uppercase font-semibold">Particle Morph //</span>
-        <span className="font-bold text-white tracking-widest">{currentShapeName}</span>
+        <span ref={labelRef} className="font-bold text-white tracking-widest">
+          {shapes[0]}
+        </span>
       </div>
     </div>
   );
