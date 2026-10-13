@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useMemo } from 'react';
  */
 
 // 1. Fibonacci Sphere
-function generateSphere(count, radius = 130) {
+function generateSphere(count, radius = 160) {
   const points = [];
   const goldenRatio = (1 + Math.sqrt(5)) / 2;
   const angleIncrement = Math.PI * 2 * goldenRatio;
@@ -36,7 +36,7 @@ function generateSphere(count, radius = 130) {
 }
 
 // 2. Structured Cyber Cube (Sharp Edges + Face Grid)
-function generateCube(count, size = 110) {
+function generateCube(count, size = 135) {
   const points = [];
   const half = size;
 
@@ -99,7 +99,7 @@ function generateCube(count, size = 110) {
 }
 
 // 3. Torus (Donut Ring)
-function generateTorus(count, majorRadius = 115, minorRadius = 45) {
+function generateTorus(count, majorRadius = 140, minorRadius = 55) {
   const points = [];
 
   for (let i = 0; i < count; i++) {
@@ -124,7 +124,7 @@ function generateTorus(count, majorRadius = 115, minorRadius = 45) {
 }
 
 // 4. Double Helix (DNA with connecting rungs)
-function generateDoubleHelix(count, radius = 70, height = 260, turns = 2.4) {
+function generateDoubleHelix(count, radius = 90, height = 310, turns = 2.4) {
   const points = [];
 
   for (let i = 0; i < count; i++) {
@@ -316,8 +316,8 @@ export default function ParticleMorph({
     let rotX = 0.22;
     const rotSpeedY = 0.007;
 
-    const fov = 380;
-    const cameraZ = 360;
+    const fov = 420;
+    const cameraZ = 350;
 
     let animId;
 

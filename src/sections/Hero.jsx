@@ -296,7 +296,7 @@ export default function Hero({ profile }) {
                   </div>
 
                   {/* 3D Visual Showcase Container */}
-                  <div className="rounded-2xl overflow-hidden bg-[#070c10] border border-emerald-500/25 relative shadow-inner h-[380px] sm:h-[400px]">
+                  <div className="rounded-2xl overflow-hidden bg-[#070c10] border border-emerald-500/25 relative shadow-inner h-[460px] sm:h-[500px]">
                     {activeVisual === 'morph' ? (
                       <ParticleMorph
                         count={640}
@@ -312,38 +312,6 @@ export default function Hero({ profile }) {
                     ) : (
                       <IoTScene3D />
                     )}
-                  </div>
-
-                  {/* Technical Feature Cards */}
-                  <div className="grid grid-cols-2 gap-3 pt-1">
-                    <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                        <Radio className="w-4 h-4 animate-pulse" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-slate-900 dark:text-white">640 3D Particles</p>
-                        <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">Smoothstep Morph</p>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400">
-                        <Code2 className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-slate-900 dark:text-white">Zero Lib Math</p>
-                        <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">Pure Canvas 60FPS</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Institutional Foundation Pill */}
-                  <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-50 to-emerald-50 dark:from-cyan-950/40 dark:to-slate-900/60 border border-cyan-200/80 dark:border-cyan-500/30 text-xs">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
-                      <span className="text-slate-700 dark:text-slate-200 font-medium">BCE Patna &bull; CSE (IoT)</span>
-                    </div>
-                    <span className="font-mono text-cyan-600 dark:text-cyan-400 font-semibold">2023–2027</span>
                   </div>
 
                 </div>
