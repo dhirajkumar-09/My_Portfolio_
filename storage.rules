@@ -1,0 +1,17 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'dhirajku00021@gmail.com'
+      );
+    }
+
+    // Public read for portfolio assets (project screenshots & resume PDFs)
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

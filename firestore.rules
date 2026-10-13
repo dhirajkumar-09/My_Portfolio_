@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email.lower() == 'dhirajku00021@gmail.com' ||
+        (exists(/databases/$(database)/documents/admins/$(request.auth.uid)))
+      );
+    }
+
+    // 1. Public Portfolio Content Collections: Read-only for public, writes restricted to Admin
+    match /profile/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /projects/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /skills/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /education/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 2. Contact Messages: Public can only CREATE with strict validation, only Admin can READ, UPDATE or DELETE
+    match /messages/{messageId} {
+      // Anyone can submit a message if it contains valid sanitized fields
+      allow create: if request.resource.data.name is string &&
+                       request.resource.data.name.size() > 0 &&
+                       request.resource.data.name.size() <= 120 &&
+                       request.resource.data.email is string &&
+                       request.resource.data.email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$') &&
+                       request.resource.data.message is string &&
+                       request.resource.data.message.size() > 0 &&
+                       request.resource.data.message.size() <= 4000;
+
+      // Only the authenticated admin can inspect, mark as read, or delete messages
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Default catch-all denies everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
