@@ -16,8 +16,8 @@ const firebaseConfig = {
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
   firebaseConfig.projectId &&
-  firebaseConfig.apiKey !== "your_api_key_here" &&
-  firebaseConfig.apiKey !== "your_api_key" &&
+  !firebaseConfig.apiKey.includes("YourFirebaseApiKeyHere") &&
+  !firebaseConfig.apiKey.includes("your_api_key") &&
   firebaseConfig.projectId !== "your_project_id"
 );
 

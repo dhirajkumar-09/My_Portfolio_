@@ -10,7 +10,12 @@ import { auth, googleProvider, isFirebaseConfigured } from '../services/firebase
 
 const AuthContext = createContext();
 
-const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'dhirajku00021@gmail.com').toLowerCase();
+const PRIMARY_ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'dhirajku00021@gmail.com').toLowerCase();
+const ALLOWED_ADMIN_EMAILS = [
+  PRIMARY_ADMIN_EMAIL,
+  'dhirajku00021@gmail.com',
+  'dhrajk8023@gmail.com'
+];
 const ADMIN_UID = import.meta.env.VITE_ADMIN_UID || '';
 
 export function AuthProvider({ children }) {
@@ -37,17 +42,18 @@ export function AuthProvider({ children }) {
       return await signInWithEmailAndPassword(auth, email, password);
     } else {
       // Demo authentication fallback
-      if (email.toLowerCase() === ADMIN_EMAIL || email === 'admin@demo.com') {
+      const normalizedEmail = (email || '').toLowerCase().trim();
+      if (ALLOWED_ADMIN_EMAILS.includes(normalizedEmail) || normalizedEmail === 'admin@demo.com') {
         setIsDemoAdmin(true);
         localStorage.setItem('dhiraj_portfolio_demo_admin', 'true');
         setCurrentUser({
-          email: ADMIN_EMAIL,
+          email: normalizedEmail,
           displayName: 'Dhiraj Kumar (Demo Admin)',
           uid: 'demo-admin-uid'
         });
-        return { user: { email: ADMIN_EMAIL } };
+        return { user: { email: normalizedEmail } };
       } else {
-        throw new Error('Invalid email or password. Please use dhirajku00021@gmail.com');
+        throw new Error('Invalid email or password. Please use dhirajku00021@gmail.com or dhrajk8023@gmail.com');
       }
     }
   };
@@ -59,11 +65,11 @@ export function AuthProvider({ children }) {
       setIsDemoAdmin(true);
       localStorage.setItem('dhiraj_portfolio_demo_admin', 'true');
       setCurrentUser({
-        email: ADMIN_EMAIL,
+        email: PRIMARY_ADMIN_EMAIL,
         displayName: 'Dhiraj Kumar (Google Auth)',
         uid: 'demo-admin-uid'
       });
-      return { user: { email: ADMIN_EMAIL } };
+      return { user: { email: PRIMARY_ADMIN_EMAIL } };
     }
   };
 
@@ -80,17 +86,18 @@ export function AuthProvider({ children }) {
     setIsDemoAdmin(true);
     localStorage.setItem('dhiraj_portfolio_demo_admin', 'true');
     setCurrentUser({
-      email: ADMIN_EMAIL,
+      email: PRIMARY_ADMIN_EMAIL,
       displayName: 'Dhiraj Kumar',
       uid: 'demo-admin-uid'
     });
   };
 
   // Determine if active user is authorized admin
+  const userEmail = (currentUser?.email || '').toLowerCase().trim();
   const isAdmin = Boolean(
     isDemoAdmin ||
     (currentUser && (
-      currentUser.email?.toLowerCase() === ADMIN_EMAIL ||
+      ALLOWED_ADMIN_EMAILS.includes(userEmail) ||
       (ADMIN_UID && currentUser.uid === ADMIN_UID)
     ))
   );
@@ -105,7 +112,8 @@ export function AuthProvider({ children }) {
         loginWithGoogle,
         logout,
         enableDemoAdmin,
-        adminEmail: ADMIN_EMAIL,
+        adminEmail: PRIMARY_ADMIN_EMAIL,
+        allowedAdminEmails: ALLOWED_ADMIN_EMAILS,
         isFirebaseConfigured
       }}
     >

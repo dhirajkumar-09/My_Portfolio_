@@ -591,6 +591,24 @@ export default function Admin() {
               </span>
             </div>
 
+            {currentUser && !isAdmin && (
+              <div className="p-3.5 rounded-xl bg-amber-950/80 border border-amber-500/40 text-xs text-amber-200 space-y-2">
+                <p>
+                  Signed in as <strong className="text-white">{currentUser.email}</strong>, but this account is not authorized for Admin access.
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-amber-300/70 font-mono">Required: {adminEmail}</span>
+                  <button
+                    type="button"
+                    onClick={logout}
+                    className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-mono text-[11px] transition-colors"
+                  >
+                    Switch Account
+                  </button>
+                </div>
+              </div>
+            )}
+
             {authError && (
               <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-500/40 text-xs text-rose-200">
                 {authError}
