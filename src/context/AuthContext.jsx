@@ -5,8 +5,7 @@ import {
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged
-} from 'firebase/auth';
-import { auth, isFirebaseConfigured } from '../services/firebase';
+import { auth, googleProvider, isFirebaseConfigured } from '../services/firebase';
 
 const AuthContext = createContext();
 
@@ -54,8 +53,7 @@ export function AuthProvider({ children }) {
 
   const loginWithGoogle = async () => {
     if (isFirebaseConfigured && auth) {
-      const provider = new GoogleAuthProvider();
-      return await signInWithPopup(auth, provider);
+      return await signInWithPopup(auth, googleProvider);
     } else {
       setIsDemoAdmin(true);
       localStorage.setItem('dhiraj_portfolio_demo_admin', 'true');

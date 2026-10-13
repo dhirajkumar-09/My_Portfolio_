@@ -1,12 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useTheme } from '../context/ThemeContext';
-import { Sparkles, Compass } from 'lucide-react';
 
+/**
+ * IoTScene3D
+ * High-end, luxury holographic 3D centerpiece.
+ * Features an illuminated quantum polyhedron, concentric orbital rings,
+ * floating particle cosmos, dynamic lighting, and silky mouse parallax.
+ * Pure cinematic visual — zero clunky labels or badges.
+ */
 export default function IoTScene3D({ className = '' }) {
   const mountRef = useRef(null);
   const { isDark } = useTheme();
-  const [isInteracting, setIsInteracting] = useState(false);
   const [webGlSupported, setWebGlSupported] = useState(true);
 
   useEffect(() => {
@@ -26,13 +31,13 @@ export default function IoTScene3D({ className = '' }) {
       return;
     }
 
-    const width = container.clientWidth || 380;
-    const height = container.clientHeight || 320;
+    const width = container.clientWidth || 400;
+    const height = container.clientHeight || 360;
 
-    // Scene, Camera, Renderer
+    // Scene & Camera setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.z = 7.5;
+    camera.position.set(0, 0, 8.2);
 
     let renderer;
     try {
@@ -50,233 +55,266 @@ export default function IoTScene3D({ className = '' }) {
       return;
     }
 
-    // Dynamic Theme Palettes
-    const palette = isDark
+    // Dynamic Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.9 : 1.2);
+    scene.add(ambientLight);
+
+    const cyanLight = new THREE.PointLight(0x06b6d4, isDark ? 3.5 : 2.5, 50);
+    cyanLight.position.set(5, 5, 5);
+    scene.add(cyanLight);
+
+    const emeraldLight = new THREE.PointLight(0x10b981, isDark ? 2.5 : 2.0, 50);
+    emeraldLight.position.set(-5, -4, 4);
+    scene.add(emeraldLight);
+
+    // Root Hologram Hierarchy
+    const hologramGroup = new THREE.Group();
+    scene.add(hologramGroup);
+
+    // Color Palette
+    const colors = isDark
       ? {
-          wireframe: 0x06b6d4, // Cyan-500
-          nodes: 0x10b981,     // Emerald-500
-          innerGlow: 0x38bdf8, // Sky-400
-          rings: 0x0ea5e9,     // Sky-500
-          particles: 0xa5f3fc  // Cyan-200
+          primaryWire: 0x38bdf8,
+          coreFill: 0x06b6d4,
+          rings: 0x22d3ee,
+          nodes: 0x34d399,
+          particles: 0xa5f3fc
         }
       : {
-          wireframe: 0x0284c7, // Sky-600
-          nodes: 0x059669,     // Emerald-600
-          innerGlow: 0x2563eb, // Blue-600
-          rings: 0x0284c7,     // Sky-600
-          particles: 0x0369a1  // Sky-700
+          primaryWire: 0x0284c7,
+          coreFill: 0x0369a1,
+          rings: 0x0ea5e9,
+          nodes: 0x059669,
+          particles: 0x0284c7
         };
 
-    const rootGroup = new THREE.Group();
-    scene.add(rootGroup);
-
-    // 1. Central Geodesic Icosahedron Wireframe (IoT Network Core)
-    const sphereGeo = new THREE.IcosahedronGeometry(2.1, 2);
-    const wireframeMat = new THREE.MeshBasicMaterial({
-      color: palette.wireframe,
-      wireframe: true,
+    // 1. Central Faceted Crystal Core (Icosahedron Inner Core)
+    const innerGeo = new THREE.IcosahedronGeometry(1.4, 0);
+    const innerMat = new THREE.MeshPhongMaterial({
+      color: colors.coreFill,
+      emissive: colors.coreFill,
+      emissiveIntensity: isDark ? 0.35 : 0.2,
+      wireframe: false,
       transparent: true,
-      opacity: isDark ? 0.35 : 0.45
-    });
-    const wireframeSphere = new THREE.Mesh(sphereGeo, wireframeMat);
-    rootGroup.add(wireframeSphere);
-
-    // 2. Inner Glowing Core Sphere
-    const innerGeo = new THREE.SphereGeometry(1.2, 24, 24);
-    const innerMat = new THREE.MeshBasicMaterial({
-      color: palette.innerGlow,
-      transparent: true,
-      opacity: isDark ? 0.15 : 0.2
+      opacity: isDark ? 0.38 : 0.25,
+      shininess: 90,
+      flatShading: true
     });
     const innerCore = new THREE.Mesh(innerGeo, innerMat);
-    rootGroup.add(innerCore);
+    hologramGroup.add(innerCore);
 
-    // 3. Sensor Nodes at Vertices
-    const posAttribute = sphereGeo.getAttribute('position');
-    const nodesCount = posAttribute.count;
+    // 2. Outer Geometric Wireframe Lattice
+    const outerGeo = new THREE.IcosahedronGeometry(2.3, 1);
+    const outerWireMat = new THREE.MeshBasicMaterial({
+      color: colors.primaryWire,
+      wireframe: true,
+      transparent: true,
+      opacity: isDark ? 0.45 : 0.55
+    });
+    const outerWire = new THREE.Mesh(outerGeo, outerWireMat);
+    hologramGroup.add(outerWire);
+
+    // 3. Glowing Junction Nodes at Vertices
+    const outerPos = outerGeo.getAttribute('position');
+    const nodesCount = outerPos.count;
     const nodeGeometry = new THREE.BufferGeometry();
     const nodePositions = new Float32Array(nodesCount * 3);
 
     for (let i = 0; i < nodesCount * 3; i++) {
-      nodePositions[i] = posAttribute.array[i];
+      nodePositions[i] = outerPos.array[i];
     }
     nodeGeometry.setAttribute('position', new THREE.BufferAttribute(nodePositions, 3));
 
     const nodeMat = new THREE.PointsMaterial({
-      color: palette.nodes,
-      size: 0.1,
+      color: colors.nodes,
+      size: 0.12,
       transparent: true,
-      opacity: isDark ? 0.9 : 1
+      opacity: isDark ? 0.95 : 1,
+      blending: THREE.AdditiveBlending
     });
     const nodes = new THREE.Points(nodeGeometry, nodeMat);
-    rootGroup.add(nodes);
+    hologramGroup.add(nodes);
 
-    // 4. Orbital Satellite Rings (Telemetry Orbits)
+    // 4. Concentric Orbital Telemetry Rings (Gimbal System)
     const ringGroup = new THREE.Group();
-    rootGroup.add(ringGroup);
+    hologramGroup.add(ringGroup);
 
-    const createOrbitRing = (radius, tiltX, tiltZ) => {
-      const ringGeo = new THREE.TorusGeometry(radius, 0.015, 8, 80);
+    const createGimbalRing = (radius, tube, tiltX, tiltY) => {
+      const ringGeo = new THREE.TorusGeometry(radius, tube, 12, 100);
       const ringMat = new THREE.MeshBasicMaterial({
-        color: palette.rings,
+        color: colors.rings,
         transparent: true,
-        opacity: isDark ? 0.4 : 0.5
+        opacity: isDark ? 0.4 : 0.5,
+        blending: THREE.AdditiveBlending
       });
       const ring = new THREE.Mesh(ringGeo, ringMat);
       ring.rotation.x = tiltX;
-      ring.rotation.z = tiltZ;
+      ring.rotation.y = tiltY;
       return ring;
     };
 
-    const ring1 = createOrbitRing(2.9, Math.PI / 3, 0.2);
-    const ring2 = createOrbitRing(3.4, -Math.PI / 4, -0.4);
-    ringGroup.add(ring1);
-    ringGroup.add(ring2);
+    const ringA = createGimbalRing(3.1, 0.018, Math.PI / 3, 0.25);
+    const ringB = createGimbalRing(3.6, 0.016, -Math.PI / 4, -0.35);
+    ringGroup.add(ringA);
+    ringGroup.add(ringB);
 
-    // 5. Orbiting Telemetry Beacons (Satellites)
-    const beaconGeo = new THREE.SphereGeometry(0.09, 12, 12);
-    const beaconMat1 = new THREE.MeshBasicMaterial({ color: palette.nodes });
-    const beacon1 = new THREE.Mesh(beaconGeo, beaconMat1);
+    // 5. Orbiting Luminous Signal Beacons
+    const beaconGeo = new THREE.SphereGeometry(0.1, 16, 16);
+    const beaconMatA = new THREE.MeshBasicMaterial({
+      color: colors.nodes,
+      blending: THREE.AdditiveBlending
+    });
+    const beaconMatB = new THREE.MeshBasicMaterial({
+      color: colors.primaryWire,
+      blending: THREE.AdditiveBlending
+    });
+    const beaconA = new THREE.Mesh(beaconGeo, beaconMatA);
+    const beaconB = new THREE.Mesh(beaconGeo, beaconMatB);
+    ringGroup.add(beaconA);
+    ringGroup.add(beaconB);
 
-    const beaconMat2 = new THREE.MeshBasicMaterial({ color: palette.innerGlow });
-    const beacon2 = new THREE.Mesh(beaconGeo, beaconMat2);
-
-    ringGroup.add(beacon1);
-    ringGroup.add(beacon2);
-
-    // 6. Floating Cloud Particles
-    const particleCount = 140;
+    // 6. Floating Cosmos Particle Nebula (280 ambient particles)
+    const particleCount = 280;
     const particlePositions = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount * 3; i += 3) {
-      const dist = 3.2 + Math.random() * 2.5;
+      const radius = 2.8 + Math.random() * 2.8;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(Math.random() * 2 - 1);
 
-      particlePositions[i] = dist * Math.sin(phi) * Math.cos(theta);
-      particlePositions[i + 1] = dist * Math.sin(phi) * Math.sin(theta);
-      particlePositions[i + 2] = dist * Math.cos(phi);
+      particlePositions[i] = radius * Math.sin(phi) * Math.cos(theta);
+      particlePositions[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      particlePositions[i + 2] = radius * Math.cos(phi);
     }
-    const particlesGeo = new THREE.BufferGeometry();
-    particlesGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-    const particlesMat = new THREE.PointsMaterial({
-      color: palette.particles,
+
+    const nebulaGeo = new THREE.BufferGeometry();
+    nebulaGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    const nebulaMat = new THREE.PointsMaterial({
+      color: colors.particles,
       size: 0.05,
       transparent: true,
-      opacity: isDark ? 0.6 : 0.5
+      opacity: isDark ? 0.65 : 0.5,
+      blending: THREE.AdditiveBlending
     });
-    const dustParticles = new THREE.Points(particlesGeo, particlesMat);
-    rootGroup.add(dustParticles);
+    const nebula = new THREE.Points(nebulaGeo, nebulaMat);
+    hologramGroup.add(nebula);
 
-    // Animation & Mouse Interaction State
+    // Mouse Parallax & Smooth Inertia
+    let mouseX = 0;
+    let mouseY = 0;
     let targetRotationX = 0;
     let targetRotationY = 0;
     let isDragging = false;
-    let prevMouseX = 0;
-    let prevMouseY = 0;
+    let dragStartX = 0;
+    let dragStartY = 0;
     let animationFrameId;
-    let orbitAngle = 0;
+    let clock = new THREE.Clock();
 
-    const onMouseDown = (e) => {
-      isDragging = true;
-      setIsInteracting(true);
-      prevMouseX = e.clientX;
-      prevMouseY = e.clientY;
-    };
-
-    const onMouseMove = (e) => {
-      if (!isDragging) {
-        // Mild parallax tilt on hover
-        const rect = container.getBoundingClientRect();
-        const normX = (e.clientX - rect.left) / rect.width - 0.5;
-        const normY = (e.clientY - rect.top) / rect.height - 0.5;
-        targetRotationY = normX * 0.8;
-        targetRotationX = normY * 0.8;
+    const handleWindowMouseMove = (e) => {
+      if (isDragging) {
+        const deltaX = e.clientX - dragStartX;
+        const deltaY = e.clientY - dragStartY;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        hologramGroup.rotation.y += deltaX * 0.007;
+        hologramGroup.rotation.x += deltaY * 0.007;
         return;
       }
 
-      const deltaX = e.clientX - prevMouseX;
-      const deltaY = e.clientY - prevMouseY;
-      prevMouseX = e.clientX;
-      prevMouseY = e.clientY;
-
-      rootGroup.rotation.y += deltaX * 0.008;
-      rootGroup.rotation.x += deltaY * 0.008;
+      // Parallax tracking from entire viewport
+      const normX = (e.clientX / window.innerWidth) * 2 - 1;
+      const normY = -(e.clientY / window.innerHeight) * 2 + 1;
+      targetRotationY = normX * 0.65;
+      targetRotationX = -normY * 0.45;
     };
 
-    const onMouseUp = () => {
+    const handleMouseDown = (e) => {
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+    };
+
+    const handleMouseUp = () => {
       isDragging = false;
-      setIsInteracting(false);
     };
 
-    // Touch support for mobile devices
-    const onTouchStart = (e) => {
+    const handleTouchStart = (e) => {
       if (e.touches.length === 1) {
         isDragging = true;
-        setIsInteracting(true);
-        prevMouseX = e.touches[0].clientX;
-        prevMouseY = e.touches[0].clientY;
+        dragStartX = e.touches[0].clientX;
+        dragStartY = e.touches[0].clientY;
       }
     };
 
-    const onTouchMove = (e) => {
+    const handleTouchMove = (e) => {
       if (isDragging && e.touches.length === 1) {
-        const deltaX = e.touches[0].clientX - prevMouseX;
-        const deltaY = e.touches[0].clientY - prevMouseY;
-        prevMouseX = e.touches[0].clientX;
-        prevMouseY = e.touches[0].clientY;
-
-        rootGroup.rotation.y += deltaX * 0.008;
-        rootGroup.rotation.x += deltaY * 0.008;
+        const deltaX = e.touches[0].clientX - dragStartX;
+        const deltaY = e.touches[0].clientY - dragStartY;
+        dragStartX = e.touches[0].clientX;
+        dragStartY = e.touches[0].clientY;
+        hologramGroup.rotation.y += deltaX * 0.007;
+        hologramGroup.rotation.x += deltaY * 0.007;
       }
     };
 
-    const onTouchEnd = () => {
+    const handleTouchEnd = () => {
       isDragging = false;
-      setIsInteracting(false);
     };
 
-    container.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-    container.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
-    window.addEventListener('touchend', onTouchEnd);
+    window.addEventListener('mousemove', handleWindowMouseMove);
+    container.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd);
 
     // Resize Handler
     const handleResize = () => {
       if (!container) return;
-      const newWidth = container.clientWidth;
-      const newHeight = container.clientHeight;
-      camera.aspect = newWidth / newHeight;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      renderer.setSize(newWidth, newHeight);
+      renderer.setSize(w, h);
     };
 
     window.addEventListener('resize', handleResize);
 
-    // Render Loop
+    // Animation Loop
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
+      const time = clock.getElapsedTime();
 
-      // Auto rotation
+      // Fluid levitation / floating oscillation
+      hologramGroup.position.y = Math.sin(time * 1.3) * 0.12;
+
+      // Smooth mouse damping
       if (!isDragging) {
-        rootGroup.rotation.y += 0.004;
-        rootGroup.rotation.x += (targetRotationX - rootGroup.rotation.x) * 0.05;
+        hologramGroup.rotation.y += 0.005;
+        hologramGroup.rotation.x += (targetRotationX - hologramGroup.rotation.x) * 0.05;
+        hologramGroup.rotation.y += (targetRotationY - hologramGroup.rotation.y) * 0.05;
       }
 
-      // Orbital motion
-      orbitAngle += 0.02;
-      const r1 = 2.9;
-      beacon1.position.x = Math.cos(orbitAngle) * r1;
-      beacon1.position.y = Math.sin(orbitAngle) * r1 * Math.sin(Math.PI / 3);
-      beacon1.position.z = Math.sin(orbitAngle) * r1 * Math.cos(Math.PI / 3);
+      // Internal crystal counter-rotation
+      innerCore.rotation.x = -time * 0.3;
+      innerCore.rotation.y = time * 0.4;
 
-      const r2 = 3.4;
-      beacon2.position.x = Math.sin(orbitAngle * 0.7) * r2;
-      beacon2.position.y = Math.cos(orbitAngle * 0.7) * r2 * Math.cos(-Math.PI / 4);
-      beacon2.position.z = Math.cos(orbitAngle * 0.7) * r2 * Math.sin(-Math.PI / 4);
+      // Outer rings independent spin
+      ringA.rotation.z = time * 0.5;
+      ringB.rotation.z = -time * 0.4;
 
-      dustParticles.rotation.y -= 0.001;
+      // Orbiting beacon coordinates
+      const rA = 3.1;
+      beaconA.position.x = Math.cos(time * 1.2) * rA;
+      beaconA.position.y = Math.sin(time * 1.2) * rA * Math.sin(Math.PI / 3);
+      beaconA.position.z = Math.sin(time * 1.2) * rA * Math.cos(Math.PI / 3);
+
+      const rB = 3.6;
+      beaconB.position.x = Math.sin(time * 0.9) * rB;
+      beaconB.position.y = Math.cos(time * 0.9) * rB * Math.cos(-Math.PI / 4);
+      beaconB.position.z = Math.cos(time * 0.9) * rB * Math.sin(-Math.PI / 4);
+
+      // Nebula gentle drift
+      nebula.rotation.y = time * 0.03;
 
       renderer.render(scene, camera);
     };
@@ -285,26 +323,26 @@ export default function IoTScene3D({ className = '' }) {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      container.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-      container.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('mousemove', handleWindowMouseMove);
+      container.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
+      container.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
       cancelAnimationFrame(animationFrameId);
 
-      // Cleanup 3D assets
-      sphereGeo.dispose();
-      wireframeMat.dispose();
+      // Clean disposal of geometries and materials
       innerGeo.dispose();
       innerMat.dispose();
+      outerGeo.dispose();
+      outerWireMat.dispose();
       nodeGeometry.dispose();
       nodeMat.dispose();
       beaconGeo.dispose();
-      beaconMat1.dispose();
-      beaconMat2.dispose();
-      particlesGeo.dispose();
-      particlesMat.dispose();
+      beaconMatA.dispose();
+      beaconMatB.dispose();
+      nebulaGeo.dispose();
+      nebulaMat.dispose();
 
       if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
@@ -315,33 +353,18 @@ export default function IoTScene3D({ className = '' }) {
 
   if (!webGlSupported) {
     return (
-      <div className={`flex flex-col items-center justify-center p-6 text-center ${className}`}>
-        <div className="w-44 h-44 rounded-full border-2 border-dashed border-cyan-500/40 flex items-center justify-center animate-spin-slow">
-          <Sparkles className="w-12 h-12 text-cyan-400" />
+      <div className={`flex items-center justify-center p-8 ${className}`}>
+        <div className="w-48 h-48 rounded-full border border-cyan-500/30 animate-spin-slow flex items-center justify-center">
+          <div className="w-24 h-24 rounded-full bg-cyan-500/10 blur-xl" />
         </div>
-        <p className="text-xs font-mono text-slate-400 mt-3">3D IoT Telemetry Twin</p>
       </div>
     );
   }
 
   return (
-    <div className={`relative select-none ${className}`}>
-      {/* 3D Canvas Canvas Container */}
-      <div
-        ref={mountRef}
-        className="w-full h-[320px] sm:h-[360px] cursor-grab active:cursor-grabbing flex items-center justify-center"
-      />
-
-      {/* Floating 3D status badge */}
-      <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900/80 backdrop-blur-md border border-cyan-500/30 text-[11px] font-mono text-cyan-400 pointer-events-none">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping inline-block" />
-        <span>3D IoT Node Twin</span>
-      </div>
-
-      <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-900/70 backdrop-blur-md text-[10px] font-mono text-slate-400 pointer-events-none">
-        <Compass className="w-3 h-3 text-cyan-400" />
-        <span>{isInteracting ? 'Rotating orbit...' : 'Drag to rotate in 3D'}</span>
-      </div>
+    <div className={`relative w-full h-[340px] sm:h-[380px] flex items-center justify-center select-none overflow-hidden ${className}`}>
+      {/* 3D WebGL Canvas */}
+      <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing flex items-center justify-center" />
     </div>
   );
 }

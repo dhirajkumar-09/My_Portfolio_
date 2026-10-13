@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -12,11 +12,12 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || ""
 };
 
-// Check if Firebase is realistically configured
+// Check if Firebase is realistically configured with real credentials
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
   firebaseConfig.projectId &&
   firebaseConfig.apiKey !== "your_api_key_here" &&
+  firebaseConfig.apiKey !== "your_api_key" &&
   firebaseConfig.projectId !== "your_project_id"
 );
 
@@ -24,6 +25,9 @@ let app = null;
 let db = null;
 let auth = null;
 let storage = null;
+
+export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 if (isFirebaseConfigured) {
   try {
