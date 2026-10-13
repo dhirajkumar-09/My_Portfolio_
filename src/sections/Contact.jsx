@@ -114,8 +114,8 @@ export default function Contact({ profile, onToast }) {
       if (onToast) {
         onToast({
           type: 'success',
-          title: 'Message Delivered!',
-          message: `Saved to inbox & notification dispatched to ${contactEmail}.`
+          title: 'Message Sent!',
+          message: "Thank you for reaching out! I'll get back to you as soon as possible."
         });
       }
 
@@ -229,7 +229,7 @@ export default function Contact({ profile, onToast }) {
                 <span>Response Commitment</span>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Messages sent via this form trigger an immediate inbox dispatch to{' '}
+                Have an opportunity or question? Feel free to drop a message or reach out directly at{' '}
                 <span className="text-cyan-600 dark:text-cyan-400 font-mono font-medium">{contactEmail}</span>. Typically replied to within 24 hours.
               </p>
             </div>
@@ -360,10 +360,6 @@ export default function Contact({ profile, onToast }) {
                   </>
                 )}
               </button>
-
-              <p className="text-[11px] font-mono text-slate-500 text-center pt-1">
-                Protected with spam honeypot &bull; Saves to Firestore &bull; Notifies Dhiraj
-              </p>
             </form>
           </motion.div>
 

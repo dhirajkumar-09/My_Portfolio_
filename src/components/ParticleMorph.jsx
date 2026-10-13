@@ -98,17 +98,27 @@ function generateCube(count, size = 135) {
   return buffer;
 }
 
-// 3. Torus (Donut Ring)
-function generateTorus(count, majorRadius = 140, minorRadius = 55) {
+// 3. Torus (Donut Ring with 55° camera tilt for symmetrical vertical presence)
+function generateTorus(count, majorRadius = 125, minorRadius = 45) {
   const points = [];
+  // Tilt the torus by 55 degrees around the X-axis so its cross-section and central hole face the camera
+  const tilt = (55 * Math.PI) / 180;
+  const cosT = Math.cos(tilt);
+  const sinT = Math.sin(tilt);
 
   for (let i = 0; i < count; i++) {
     const u = Math.random() * Math.PI * 2;
     const v = Math.random() * Math.PI * 2;
 
-    const x = (majorRadius + minorRadius * Math.cos(v)) * Math.cos(u);
-    const y = minorRadius * Math.sin(v);
-    const z = (majorRadius + minorRadius * Math.cos(v)) * Math.sin(u);
+    const ringRad = majorRadius + minorRadius * Math.cos(v);
+    const rawX = ringRad * Math.cos(u);
+    const rawY = minorRadius * Math.sin(v);
+    const rawZ = ringRad * Math.sin(u);
+
+    // Rotate around X-axis so it fills the vertical and horizontal space symmetrically
+    const x = rawX;
+    const y = rawY * cosT - rawZ * sinT;
+    const z = rawY * sinT + rawZ * cosT;
     points.push({ x, y, z });
   }
 
@@ -124,7 +134,7 @@ function generateTorus(count, majorRadius = 140, minorRadius = 55) {
 }
 
 // 4. Double Helix (DNA with connecting rungs)
-function generateDoubleHelix(count, radius = 90, height = 310, turns = 2.4) {
+function generateDoubleHelix(count, radius = 95, height = 320, turns = 2.4) {
   const points = [];
 
   for (let i = 0; i < count; i++) {
@@ -190,7 +200,6 @@ export default function ParticleMorph({
 }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
-  const labelRef = useRef(null); // Direct DOM ref for zero-rerender text updates
 
   // Responsive particle count
   const effectiveCount = useMemo(() => {
@@ -306,11 +315,6 @@ export default function ParticleMorph({
     let isMorphing = false;
     let phaseStart = performance.now();
 
-    // Initial label set
-    if (labelRef.current) {
-      labelRef.current.textContent = currentShapes[0];
-    }
-
     // 3D Rotation State
     let rotY = 0;
     let rotX = 0.22;
@@ -373,11 +377,6 @@ export default function ParticleMorph({
           phaseStart = now;
           shapeIdx = nextIdx;
           nextIdx = (shapeIdx + 1) % buffers.length;
-
-          // Update DOM label directly without triggering React re-render
-          if (labelRef.current) {
-            labelRef.current.textContent = currentShapes[shapeIdx];
-          }
         }
       }
 
@@ -484,15 +483,6 @@ export default function ParticleMorph({
         ref={canvasRef}
         className="absolute inset-0 block w-full h-full cursor-crosshair"
       />
-
-      {/* Terminal UI Status Overlay */}
-      <div className="absolute top-3.5 left-4 pointer-events-none z-10 flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-950/80 backdrop-blur-md border border-emerald-500/20 font-mono text-[11px] text-emerald-400 tracking-wider shadow-sm">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
-        <span className="text-slate-400 uppercase font-semibold">Particle Morph //</span>
-        <span ref={labelRef} className="font-bold text-white tracking-widest">
-          {shapes[0]}
-        </span>
-      </div>
     </div>
   );
 }
