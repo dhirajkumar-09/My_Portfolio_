@@ -1,15 +1,14 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 
 /**
  * ============================================================================
  * SHAPE GENERATORS (Structured & Height-Sorted for Liquid-Smooth Morphing)
- * Pre-sorted along the Y-axis so particles flow like fluid metal into each shape
- * rather than scattering into chaotic noise.
+ * Pre-sorted along the Y-axis so particles flow like fluid metal into each shape.
  * ============================================================================
  */
 
 // 1. Fibonacci Sphere
-function generateSphere(count, radius = 160) {
+function generateSphere(count, radius = 155) {
   const points = [];
   const goldenRatio = (1 + Math.sqrt(5)) / 2;
   const angleIncrement = Math.PI * 2 * goldenRatio;
@@ -23,7 +22,6 @@ function generateSphere(count, radius = 160) {
     points.push({ x, y: y * radius, z });
   }
 
-  // Sort by Y ascending for coherent topological flow
   points.sort((a, b) => a.y - b.y);
 
   const buffer = new Float32Array(count * 3);
@@ -35,16 +33,15 @@ function generateSphere(count, radius = 160) {
   return buffer;
 }
 
-// 2. Structured Cyber Cube (Sharp Edges + Face Grid)
-function generateCube(count, size = 135) {
+// 2. Structured Cyber Cube (Sharp Wireframe Edges + Balanced Faces)
+function generateCube(count, size = 125) {
   const points = [];
   const half = size;
 
-  // Allocate 40% particles to the 12 wireframe edges for razor-sharp definition
-  const edgeCount = Math.floor(count * 0.42);
+  // 60% on wireframe edges for razor-sharp definition
+  const edgeCount = Math.floor(count * 0.60);
   const faceCount = count - edgeCount;
 
-  // 12 edges
   for (let i = 0; i < edgeCount; i++) {
     const edge = Math.floor(Math.random() * 12);
     const t = Math.random() * 2 - 1; // [-1, +1]
@@ -68,7 +65,6 @@ function generateCube(count, size = 135) {
     points.push({ x, y, z });
   }
 
-  // 6 faces
   for (let i = 0; i < faceCount; i++) {
     const face = Math.floor(Math.random() * 6);
     const u = (Math.random() * 2 - 1) * half;
@@ -101,7 +97,6 @@ function generateCube(count, size = 135) {
 // 3. Torus (Donut Ring with 55° camera tilt for symmetrical vertical presence)
 function generateTorus(count, majorRadius = 125, minorRadius = 45) {
   const points = [];
-  // Tilt the torus by 55 degrees around the X-axis so its cross-section and central hole face the camera
   const tilt = (55 * Math.PI) / 180;
   const cosT = Math.cos(tilt);
   const sinT = Math.sin(tilt);
@@ -133,33 +128,66 @@ function generateTorus(count, majorRadius = 125, minorRadius = 45) {
   return buffer;
 }
 
-// 4. Double Helix (DNA with connecting rungs)
-function generateDoubleHelix(count, radius = 95, height = 320, turns = 2.4) {
+// 4. True Structural Double Helix (Two Helical Strands + Bridging Base-Pair Rungs)
+function generateDoubleHelix(count, radius = 95, height = 310, turns = 2.4) {
   const points = [];
+  
+  // 16 connecting ladder rungs, each having 8 particles bridging Strand A and Strand B
+  const numRungs = 16;
+  const particlesPerRung = 8;
+  const rungTotal = numRungs * particlesPerRung; // 128 particles
+  const strandTotal = Math.max(0, count - rungTotal); // e.g. 512 particles
+  const halfStrand = Math.floor(strandTotal / 2); // 256 per strand
 
-  for (let i = 0; i < count; i++) {
-    const t = (i / (count - 1 || 1)) * 2 - 1; // -1 to +1
+  // Strand A (Helical backbone 1)
+  for (let i = 0; i < halfStrand; i++) {
+    const t = (i / (halfStrand - 1 || 1)) * 2 - 1; // -1 to +1
     const y = t * (height / 2);
     const angle = t * Math.PI * 2 * turns;
-
-    const isRung = i % 5 === 0; // 20% connecting ladder rungs
-    let x = 0, z = 0;
-
-    if (isRung) {
-      const interp = (Math.random() * 2 - 1);
-      x = Math.cos(angle) * radius * interp;
-      z = Math.sin(angle) * radius * interp;
-    } else {
-      const phase = (i % 2 === 0) ? 0 : Math.PI; // Strand A or Strand B
-      x = Math.cos(angle + phase) * radius;
-      z = Math.sin(angle + phase) * radius;
-    }
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
     points.push({ x, y, z });
   }
 
-  // Already ordered along Y
+  // Strand B (Opposite helical backbone 2, shifted by 180 degrees)
+  for (let i = 0; i < halfStrand; i++) {
+    const t = (i / (halfStrand - 1 || 1)) * 2 - 1;
+    const y = t * (height / 2);
+    const angle = t * Math.PI * 2 * turns + Math.PI;
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+    points.push({ x, y, z });
+  }
+
+  // Connecting Base-Pair Rungs
+  for (let r = 0; r < numRungs; r++) {
+    const t = (r / (numRungs - 1 || 1)) * 2 - 1;
+    const y = t * (height / 2);
+    const angle = t * Math.PI * 2 * turns;
+
+    for (let p = 0; p < particlesPerRung; p++) {
+      const interp = (p / (particlesPerRung - 1 || 1)) * 2 - 1; // -1 to +1
+      const x = Math.cos(angle) * radius * interp;
+      const z = Math.sin(angle) * radius * interp;
+      points.push({ x, y, z });
+    }
+  }
+
+  // Fill any remaining particles if count differs
+  while (points.length < count) {
+    const t = Math.random() * 2 - 1;
+    const y = t * (height / 2);
+    const angle = t * Math.PI * 2 * turns;
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+    points.push({ x, y, z });
+  }
+
+  // Sort by Y ascending for coherent topological flow
+  points.sort((a, b) => a.y - b.y);
+
   const buffer = new Float32Array(count * 3);
-  points.forEach((p, i) => {
+  points.slice(0, count).forEach((p, i) => {
     buffer[i * 3] = p.x;
     buffer[i * 3 + 1] = p.y;
     buffer[i * 3 + 2] = p.z;
@@ -174,7 +202,6 @@ const SHAPE_GENERATORS = {
   'DOUBLE HELIX': generateDoubleHelix
 };
 
-// Smoothstep interpolation formula: 3t^2 - 2t^3
 function smoothstep(t) {
   const c = Math.max(0, Math.min(1, t));
   return c * c * (3 - 2 * c);
@@ -192,7 +219,7 @@ export default function ParticleMorph({
     highlight: '#eafff4',            // Bright white-green sparkle
     glow: 'rgba(34, 255, 153, 0.08)' // Soft ambient depth glow
   },
-  holdTime = 2500,                  // Hold time on each shape (ms)
+  holdTime = 2600,                  // Hold time on each shape (ms)
   morphTime = 1400,                 // Fluid morph duration (ms)
   shapes = ['SPHERE', 'CUBE', 'TORUS', 'DOUBLE HELIX'],
   className = '',
@@ -201,7 +228,12 @@ export default function ParticleMorph({
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
 
-  // Responsive particle count
+  // Active shape state for UI pills
+  const [activeShapeIdx, setActiveShapeIdx] = useState(0);
+
+  // Controller ref to communicate external/button morph triggers to RAF loop
+  const triggerRef = useRef(null);
+
   const effectiveCount = useMemo(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       return Math.min(count, 350);
@@ -209,7 +241,6 @@ export default function ParticleMorph({
     return count;
   }, [count]);
 
-  // Keep references to props so useEffect runs ONCE without remounting on prop changes
   const propsRef = useRef({ colors, holdTime, morphTime, shapes });
   propsRef.current = { colors, holdTime, morphTime, shapes };
 
@@ -234,10 +265,9 @@ export default function ParticleMorph({
     const noiseSeeds = new Float32Array(effectiveCount * 3);
     for (let i = 0; i < effectiveCount; i++) {
       isHighlight[i] = Math.random() < 0.12 ? 1 : 0;
-      // Gentle harmonic dispersion amplitude (max 18px, smooth waves)
-      noiseSeeds[i * 3] = (Math.random() * 2 - 1) * 16;
-      noiseSeeds[i * 3 + 1] = (Math.random() * 2 - 1) * 16;
-      noiseSeeds[i * 3 + 2] = (Math.random() * 2 - 1) * 16;
+      noiseSeeds[i * 3] = (Math.random() * 2 - 1) * 14;
+      noiseSeeds[i * 3 + 1] = (Math.random() * 2 - 1) * 14;
+      noiseSeeds[i * 3 + 2] = (Math.random() * 2 - 1) * 14;
     }
 
     // High DPI Canvas Scaling
@@ -265,7 +295,6 @@ export default function ParticleMorph({
     const resizeObserver = new ResizeObserver(() => updateSize());
     resizeObserver.observe(container);
 
-    // Pause when off-screen or tab hidden
     let isVisible = true;
     const intersectionObserver = new IntersectionObserver(
       (entries) => {
@@ -304,18 +333,25 @@ export default function ParticleMorph({
     container.addEventListener('pointermove', handlePointerMove);
     container.addEventListener('pointerleave', handlePointerLeave);
 
-    // ========================================================================
-    // STATEFUL ANIMATION BUFFERS (Lives entirely in useEffect scope)
-    // ========================================================================
+    // Animation state
     const currentPositions = new Float32Array(effectiveCount * 3);
-    currentPositions.set(buffers[0]); // Start at first shape (SPHERE)
+    currentPositions.set(buffers[0]); // Start at SPHERE
 
     let shapeIdx = 0;
     let nextIdx = (shapeIdx + 1) % buffers.length;
     let isMorphing = false;
     let phaseStart = performance.now();
 
-    // 3D Rotation State
+    // Attach external trigger function for manual shape buttons
+    triggerRef.current = (targetShapeIndex) => {
+      if (targetShapeIndex === shapeIdx && !isMorphing) return;
+      nextIdx = targetShapeIndex;
+      isMorphing = true;
+      phaseStart = performance.now();
+      setActiveShapeIdx(targetShapeIndex);
+    };
+
+    // 3D Camera / Rotation
     let rotY = 0;
     let rotX = 0.22;
     const rotSpeedY = 0.007;
@@ -323,11 +359,15 @@ export default function ParticleMorph({
     const fov = 420;
     const cameraZ = 350;
 
+    // Pre-allocated arrays for 2-pass batched rendering (Zero GC, Zero Lag)
+    const projX = new Float32Array(effectiveCount);
+    const projY = new Float32Array(effectiveCount);
+    const projR = new Float32Array(effectiveCount);
+    const projAlpha = new Float32Array(effectiveCount);
+    const isVisiblePt = new Uint8Array(effectiveCount);
+
     let animId;
 
-    // ========================================================================
-    // HIGH-PERFORMANCE 60FPS RENDER LOOP
-    // ========================================================================
     const render = (now) => {
       animId = requestAnimationFrame(render);
       if (!isVisible) return;
@@ -336,16 +376,15 @@ export default function ParticleMorph({
       const elapsed = now - phaseStart;
 
       if (!isMorphing) {
-        // HOLD PHASE: Show current shape
         if (elapsed >= holdTime) {
           isMorphing = true;
           phaseStart = now;
+          setActiveShapeIdx(nextIdx);
         }
       } else {
-        // MORPH PHASE: Liquid interpolation between shapeIdx & nextIdx
         const progress = Math.min(elapsed / morphTime, 1);
         const ease = smoothstep(progress);
-        const wave = Math.sin(progress * Math.PI); // 0 -> 1 -> 0
+        const wave = Math.sin(progress * Math.PI);
 
         const source = buffers[shapeIdx];
         const target = buffers[nextIdx];
@@ -360,7 +399,6 @@ export default function ParticleMorph({
           const ty = target[idx + 1];
           const tz = target[idx + 2];
 
-          // Gentle harmonic wave during transition
           const jx = noiseSeeds[idx] * wave;
           const jy = noiseSeeds[idx + 1] * wave;
           const jz = noiseSeeds[idx + 2] * wave;
@@ -371,16 +409,15 @@ export default function ParticleMorph({
         }
 
         if (progress >= 1) {
-          // Snap exact coordinates & advance to next shape
           currentPositions.set(target);
           isMorphing = false;
           phaseStart = now;
           shapeIdx = nextIdx;
           nextIdx = (shapeIdx + 1) % buffers.length;
+          setActiveShapeIdx(shapeIdx);
         }
       }
 
-      // Parallax smoothing & continuous spin
       currentParallaxX += (targetParallaxX - currentParallaxX) * 0.06;
       currentParallaxY += (targetParallaxY - currentParallaxY) * 0.06;
       rotY += rotSpeedY;
@@ -410,7 +447,7 @@ export default function ParticleMorph({
       const cosY = Math.cos(effRotY);
       const sinY = Math.sin(effRotY);
 
-      // Render all 3D particles
+      // Compute all 3D projections
       for (let i = 0; i < effectiveCount; i++) {
         const idx = i * 3;
         const ox = currentPositions[idx];
@@ -429,35 +466,52 @@ export default function ParticleMorph({
 
         // 3. Perspective Projection
         const depth = z2 + cameraZ;
-        if (depth <= 10) continue;
-
-        const scale = fov / depth;
-        const projX = cx + x2 * scale;
-        const projY = cy + y2 * scale;
-
-        // Depth cueing
-        const normZ = Math.max(-1, Math.min(1, z2 / 160));
-        const alpha = Math.max(0.2, Math.min(1, 0.65 + normZ * 0.35));
-        const radius = Math.max(0.8, (1.85 + normZ * 0.9) * scale * 0.7);
-
-        ctx.beginPath();
-        ctx.arc(projX, projY, radius, 0, Math.PI * 2);
-
-        if (isHighlight[i] === 1) {
-          ctx.fillStyle = currentColors.highlight;
-          ctx.shadowColor = currentColors.highlight;
-          ctx.shadowBlur = 4;
-        } else {
-          ctx.fillStyle = currentColors.primary;
-          ctx.shadowBlur = 0;
+        if (depth <= 10) {
+          isVisiblePt[i] = 0;
+          continue;
         }
 
-        ctx.globalAlpha = alpha;
-        ctx.fill();
+        const scale = fov / depth;
+        projX[i] = cx + x2 * scale;
+        projY[i] = cy + y2 * scale;
+
+        const normZ = Math.max(-1, Math.min(1, z2 / 160));
+        projAlpha[i] = Math.max(0.25, Math.min(1, 0.7 + normZ * 0.3));
+        projR[i] = Math.max(0.8, (1.8 + normZ * 0.8) * scale * 0.7);
+        isVisiblePt[i] = 1;
       }
 
+      // ----------------------------------------------------------------------
+      // ULTRA HIGH-PERFORMANCE BATCHED RENDERING (Zero shadowBlur CPU stalls)
+      // ----------------------------------------------------------------------
+      
+      // Pass 1: Standard Neon Green Particles (Single Batch)
+      ctx.fillStyle = currentColors.primary;
+      ctx.beginPath();
+      for (let i = 0; i < effectiveCount; i++) {
+        if (isVisiblePt[i] === 0 || isHighlight[i] === 1) continue;
+        const x = projX[i];
+        const y = projY[i];
+        const r = projR[i];
+        ctx.moveTo(x + r, y);
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+      }
+      ctx.globalAlpha = 0.85;
+      ctx.fill();
+
+      // Pass 2: Bright Sparkle Particles (Single Batch)
+      ctx.fillStyle = currentColors.highlight;
+      ctx.beginPath();
+      for (let i = 0; i < effectiveCount; i++) {
+        if (isVisiblePt[i] === 0 || isHighlight[i] === 0) continue;
+        const x = projX[i];
+        const y = projY[i];
+        const r = projR[i] * 1.35;
+        ctx.moveTo(x + r, y);
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+      }
       ctx.globalAlpha = 1.0;
-      ctx.shadowBlur = 0;
+      ctx.fill();
     };
 
     animId = requestAnimationFrame(render);
@@ -470,7 +524,13 @@ export default function ParticleMorph({
       container.removeEventListener('pointermove', handlePointerMove);
       container.removeEventListener('pointerleave', handlePointerLeave);
     };
-  }, [effectiveCount]); // Runs cleanly ONCE for the canvas lifecycle!
+  }, [effectiveCount]);
+
+  const handleShapeSelect = (idx) => {
+    if (triggerRef.current) {
+      triggerRef.current(idx);
+    }
+  };
 
   return (
     <div
@@ -483,6 +543,29 @@ export default function ParticleMorph({
         ref={canvasRef}
         className="absolute inset-0 block w-full h-full cursor-crosshair"
       />
+
+      {/* Interactive Shape Selector Bar */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 sm:gap-1.5 p-1 rounded-xl bg-slate-950/85 backdrop-blur-md border border-emerald-500/20 text-[10px] sm:text-[11px] font-mono z-20 shadow-lg">
+        {shapes.map((s, idx) => {
+          const displayName = s === 'DOUBLE HELIX' ? 'DNA Helix' : s;
+          const isActive = activeShapeIdx === idx;
+          return (
+            <button
+              key={s}
+              onClick={() => handleShapeSelect(idx)}
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer font-medium ${
+                isActive
+                  ? 'bg-emerald-500/25 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+              title={`Morph to ${displayName}`}
+            >
+              {isActive && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse" />}
+              {displayName}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
