@@ -27,7 +27,8 @@ import {
   Sliders,
   Code2,
   Award,
-  AlertTriangle
+  AlertTriangle,
+  Image as ImageIcon
 } from 'lucide-react';
 import { Github } from '../components/SocialIcons';
 
@@ -133,6 +134,10 @@ export default function Admin() {
     metrics: ''
   });
 
+  // Local Image Upload states
+  const [isUploadingProjectImg, setIsUploadingProjectImg] = useState(false);
+  const [isUploadingCertImg, setIsUploadingCertImg] = useState(false);
+
   // Education Modal / Form State
   const [isEditingEdu, setIsEditingEdu] = useState(false);
   const [eduForm, setEduForm] = useState({
@@ -222,6 +227,25 @@ export default function Admin() {
   // ----------------------------------------------------
   // PROJECTS CRUD
   // ----------------------------------------------------
+  const handleProjectImageUpload = async (file) => {
+    if (!file) return;
+    if (!file.type || !file.type.startsWith('image/')) {
+      setToast({ type: 'error', title: 'Invalid File', message: 'Please select an image file (PNG, JPG, WEBP, etc).' });
+      return;
+    }
+    setIsUploadingProjectImg(true);
+    try {
+      const dataUrl = await uploadFile(file, `projects/${Date.now()}_${file.name}`);
+      setProjectForm((prev) => ({ ...prev, image: dataUrl }));
+      setToast({ type: 'success', title: 'Image Loaded', message: 'Image processed and saved to local storage!' });
+    } catch (err) {
+      console.error(err);
+      setToast({ type: 'error', title: 'Upload Failed', message: err.message || 'Could not process image.' });
+    } finally {
+      setIsUploadingProjectImg(false);
+    }
+  };
+
   const handleOpenAddProject = () => {
     setProjectForm({
       id: '',
@@ -231,7 +255,7 @@ export default function Admin() {
       category: 'IoT & Systems',
       featured: true,
       order: projects.length + 1,
-      image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+      image: '',
       techStackStr: 'React, Node.js, IoT Sensors',
       liveUrl: '',
       githubUrl: profile?.github || 'https://github.com/dhirajkumar-09/My_Portfolio_',
@@ -308,6 +332,25 @@ export default function Admin() {
   // ----------------------------------------------------
   // CERTIFICATES CRUD
   // ----------------------------------------------------
+  const handleCertImageUpload = async (file) => {
+    if (!file) return;
+    if (!file.type || !file.type.startsWith('image/')) {
+      setToast({ type: 'error', title: 'Invalid File', message: 'Please select an image file (PNG, JPG, WEBP, etc).' });
+      return;
+    }
+    setIsUploadingCertImg(true);
+    try {
+      const dataUrl = await uploadFile(file, `certificates/${Date.now()}_${file.name}`);
+      setCertForm((prev) => ({ ...prev, image: dataUrl }));
+      setToast({ type: 'success', title: 'Image Loaded', message: 'Certificate image processed and saved to local storage!' });
+    } catch (err) {
+      console.error(err);
+      setToast({ type: 'error', title: 'Upload Failed', message: err.message || 'Could not process image.' });
+    } finally {
+      setIsUploadingCertImg(false);
+    }
+  };
+
   const handleOpenAddCert = () => {
     setCertForm({
       id: '',
@@ -316,7 +359,7 @@ export default function Admin() {
       issueDate: new Date().getFullYear().toString(),
       credentialId: '',
       credentialUrl: profile?.github || 'https://github.com/dhirajkumar-09/My_Portfolio_',
-      image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+      image: '',
       category: 'IoT & Hardware',
       skillsStr: 'IoT Architecture, Microcontrollers',
       order: certificates.length + 1
@@ -2083,77 +2126,111 @@ export default function Admin() {
                 />
               </div>
 
+              {/* LOCAL IMAGE UPLOAD ONLY (NO URL INPUT) */}
               <div>
-                <label className="block text-xs font-mono text-slate-300 mb-1">
-                  Cover Image URL or File Upload
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={projectForm.image}
-                    onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
-                    onPaste={async (e) => {
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-mono text-slate-300 font-semibold flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Project Cover Image (Local Upload)</span>
+                  </label>
+                  {projectForm.image ? (
+                    <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>Loaded in Local Storage</span>
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-mono text-amber-400/90">
+                      * Upload from your computer
+                    </span>
+                  )}
+                </div>
+
+                {!projectForm.image ? (
+                  <label
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const file = e.dataTransfer?.files?.[0];
+                      if (file) handleProjectImageUpload(file);
+                    }}
+                    onPaste={(e) => {
                       const files = e.clipboardData?.files;
                       if (files && files.length > 0 && files[0].type.startsWith('image/')) {
                         e.preventDefault();
-                        const file = files[0];
-                        try {
-                          const url = await uploadFile(file, `projects/${Date.now()}_${file.name || 'pasted.png'}`);
-                          setProjectForm((prev) => ({ ...prev, image: url }));
-                          setToast({ type: 'success', title: 'Pasted & Uploaded', message: 'Pasted image uploaded successfully!' });
-                        } catch (err) {
-                          setToast({ type: 'error', title: 'Upload Failed', message: err.message });
-                        }
+                        handleProjectImageUpload(files[0]);
                       }
                     }}
-                    placeholder="https://images.unsplash.com/... or upload or paste image"
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
-                  />
-                  <label className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-cyan-300 flex items-center gap-1.5 cursor-pointer transition-colors flex-shrink-0">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Upload</span>
+                    className="relative flex flex-col items-center justify-center w-full min-h-[160px] p-6 border-2 border-dashed border-cyan-500/40 hover:border-cyan-400 rounded-2xl bg-cyan-950/20 hover:bg-cyan-950/30 transition-all cursor-pointer group text-center"
+                  >
                     <input
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={async (e) => {
+                      onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) {
-                          try {
-                            const url = await uploadFile(file, `projects/${Date.now()}_${file.name}`);
-                            setProjectForm((prev) => ({ ...prev, image: url }));
-                            setToast({ type: 'success', title: 'Uploaded', message: 'Project image uploaded successfully.' });
-                          } catch (err) {
-                            setToast({ type: 'error', title: 'Upload Failed', message: err.message });
-                          }
-                        }
+                        if (file) handleProjectImageUpload(file);
+                        e.target.value = '';
                       }}
                     />
+                    {isUploadingProjectImg ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <RefreshCw className="w-8 h-8 text-cyan-400 animate-spin" />
+                        <span className="text-xs font-mono text-cyan-300">Processing & saving image locally...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:border-cyan-400 transition-all">
+                          <Upload className="w-6 h-6 text-cyan-400" />
+                        </div>
+                        <p className="text-sm font-semibold text-white mb-1">
+                          Click to Choose Image from Computer
+                        </p>
+                        <p className="text-xs text-slate-400 font-mono">
+                          or Drag & Drop image file here / Paste with Ctrl+V
+                        </p>
+                        <span className="mt-2 text-[10px] text-cyan-400/80 font-mono bg-slate-900/80 px-2.5 py-0.5 rounded-full border border-slate-700">
+                          PNG, JPG, WEBP • Stored directly in browser local storage
+                        </span>
+                      </>
+                    )}
                   </label>
-                </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="relative w-full h-44 rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center shadow-inner">
+                      <img
+                        src={projectForm.image}
+                        alt="Project Preview"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
 
-                {projectForm.image?.startsWith('blob:https://') && (
-                  <div className="mt-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-1">
-                    <p className="font-semibold flex items-center gap-1">
-                      <span>⚠️ WhatsApp Web Link Notice:</span>
-                    </p>
-                    <p className="text-[11px] text-amber-200/90 leading-relaxed">
-                      WhatsApp Web creates private temporary browser links (<span className="font-mono">blob:https://...</span>) that other websites cannot open.
-                      Please download the image from WhatsApp to your computer and click the <strong className="text-white">"Upload"</strong> button, or copy-paste the image file directly!
-                    </p>
-                  </div>
-                )}
+                    <div className="flex items-center gap-2">
+                      <label className="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-cyan-300 flex items-center justify-center gap-2 cursor-pointer transition-colors">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>{isUploadingProjectImg ? 'Processing...' : 'Change Image'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={isUploadingProjectImg}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleProjectImageUpload(file);
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
 
-                {projectForm.image && !projectForm.image.startsWith('blob:https://') && (
-                  <div className="mt-2.5 relative w-full h-36 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
-                    <img
-                      src={projectForm.image}
-                      alt="Project Preview"
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
+                      <button
+                        type="button"
+                        onClick={() => setProjectForm({ ...projectForm, image: '' })}
+                        className="py-2 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-xs font-mono text-rose-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+                        title="Remove Image"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -2374,49 +2451,111 @@ export default function Admin() {
                 />
               </div>
 
+              {/* LOCAL CERTIFICATE IMAGE UPLOAD ONLY (NO URL INPUT) */}
               <div>
-                <label className="block text-xs font-mono text-slate-300 mb-1">
-                  Certificate Image URL or Upload
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={certForm.image}
-                    onChange={(e) => setCertForm({ ...certForm, image: e.target.value })}
-                    placeholder="https://... or upload certificate image"
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
-                  />
-                  <label className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-cyan-300 flex items-center gap-1.5 cursor-pointer transition-colors">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Upload</span>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-mono text-slate-300 font-semibold flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Certificate Image (Local Upload)</span>
+                  </label>
+                  {certForm.image ? (
+                    <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>Loaded in Local Storage</span>
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-mono text-amber-400/90">
+                      * Upload from your computer
+                    </span>
+                  )}
+                </div>
+
+                {!certForm.image ? (
+                  <label
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const file = e.dataTransfer?.files?.[0];
+                      if (file) handleCertImageUpload(file);
+                    }}
+                    onPaste={(e) => {
+                      const files = e.clipboardData?.files;
+                      if (files && files.length > 0 && files[0].type.startsWith('image/')) {
+                        e.preventDefault();
+                        handleCertImageUpload(files[0]);
+                      }
+                    }}
+                    className="relative flex flex-col items-center justify-center w-full min-h-[160px] p-6 border-2 border-dashed border-cyan-500/40 hover:border-cyan-400 rounded-2xl bg-cyan-950/20 hover:bg-cyan-950/30 transition-all cursor-pointer group text-center"
+                  >
                     <input
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={async (e) => {
+                      onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) {
-                          try {
-                            const url = await uploadFile(file, `certificates/${Date.now()}_${file.name}`);
-                            setCertForm((prev) => ({ ...prev, image: url }));
-                            setToast({ type: 'success', title: 'Uploaded', message: 'Certificate image uploaded.' });
-                          } catch (err) {
-                            setToast({ type: 'error', title: 'Upload Failed', message: err.message });
-                          }
-                        }
+                        if (file) handleCertImageUpload(file);
+                        e.target.value = '';
                       }}
                     />
+                    {isUploadingCertImg ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <RefreshCw className="w-8 h-8 text-cyan-400 animate-spin" />
+                        <span className="text-xs font-mono text-cyan-300">Processing & saving image locally...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:border-cyan-400 transition-all">
+                          <Upload className="w-6 h-6 text-cyan-400" />
+                        </div>
+                        <p className="text-sm font-semibold text-white mb-1">
+                          Click to Choose Certificate Image from Computer
+                        </p>
+                        <p className="text-xs text-slate-400 font-mono">
+                          or Drag & Drop certificate image here / Paste with Ctrl+V
+                        </p>
+                        <span className="mt-2 text-[10px] text-cyan-400/80 font-mono bg-slate-900/80 px-2.5 py-0.5 rounded-full border border-slate-700">
+                          PNG, JPG, WEBP • Stored directly in browser local storage
+                        </span>
+                      </>
+                    )}
                   </label>
-                </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="relative w-full h-44 rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center shadow-inner">
+                      <img
+                        src={certForm.image}
+                        alt="Certificate Preview"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
 
-                {certForm.image && (
-                  <div className="mt-2.5 relative w-full h-36 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
-                    <img
-                      src={certForm.image}
-                      alt="Certificate Preview"
-                      className="w-full h-full object-contain"
-                      onError={(e) => { e.target.style.display = 'none'; }}
-                    />
+                    <div className="flex items-center gap-2">
+                      <label className="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-cyan-300 flex items-center justify-center gap-2 cursor-pointer transition-colors">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>{isUploadingCertImg ? 'Processing...' : 'Change Image'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={isUploadingCertImg}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleCertImageUpload(file);
+                            e.target.value = '';
+                          }}
+                        />
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => setCertForm({ ...certForm, image: '' })}
+                        className="py-2 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-xs font-mono text-rose-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+                        title="Remove Image"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

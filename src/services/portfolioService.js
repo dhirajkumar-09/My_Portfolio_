@@ -411,29 +411,103 @@ export const deleteMessage = async (id) => {
 // ----------------------------------------------------
 // RESUME & FILE UPLOADS
 // ----------------------------------------------------
-export const uploadFile = async (file, path = 'resumes/dhiraj_kumar_resume.pdf') => {
-  if (isFirebaseConfigured && storage) {
-    try {
-      const storageRef = ref(storage, path);
-      await uploadBytes(storageRef, file);
-      const downloadUrl = await getDownloadURL(storageRef);
-      return downloadUrl;
-    } catch (err) {
-      console.warn('Firebase Storage upload failed, converting to Data URL fallback:', err);
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
+export const readImageAsLocalDataUrl = (file) => {
+  return new Promise((resolve, reject) => {
+    if (!file) return reject(new Error('No file provided'));
+
+    // If already a Data URL or URL string, return directly
+    if (typeof file === 'string') {
+      return resolve(file);
     }
-  } else {
-    // Generate an in-memory base64 Data URL
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(file);
-    });
-  }
+
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Failed to read file from local storage'));
+    reader.onload = (e) => {
+      const rawResult = e.target.result;
+
+      // If not an image (e.g. PDF resume) or is an SVG, return raw data url directly
+      if (!file.type || !file.type.startsWith('image/') || file.type === 'image/svg+xml') {
+        return resolve(rawResult);
+      }
+
+      let isSettled = false;
+      const safetyTimer = setTimeout(() => {
+        if (!isSettled) {
+          isSettled = true;
+          resolve(rawResult);
+        }
+      }, 3000);
+
+      const img = new Image();
+      img.onerror = () => {
+        if (!isSettled) {
+          isSettled = true;
+          clearTimeout(safetyTimer);
+          resolve(rawResult);
+        }
+      };
+
+      img.onload = () => {
+        if (isSettled) return;
+        isSettled = true;
+        clearTimeout(safetyTimer);
+
+        try {
+          const maxDim = 1200;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, width);
+          canvas.height = Math.max(1, height);
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            return resolve(rawResult);
+          }
+
+          // If not transparent PNG, fill slate background
+          if (file.type !== 'image/png') {
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, width, height);
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Attempt WebP for ultra-compact size & transparency, fallback to JPEG
+          let compressed;
+          try {
+            compressed = canvas.toDataURL('image/webp', 0.84);
+            if (!compressed || !compressed.startsWith('data:image/webp')) {
+              compressed = canvas.toDataURL('image/jpeg', 0.82);
+            }
+          } catch {
+            compressed = canvas.toDataURL('image/jpeg', 0.82);
+          }
+
+          resolve(compressed || rawResult);
+        } catch (canvasErr) {
+          console.warn('Canvas optimization fallback:', canvasErr);
+          resolve(rawResult);
+        }
+      };
+
+      img.src = rawResult;
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+export const uploadFile = async (file, path = 'resumes/dhiraj_kumar_resume.pdf') => {
+  // Always convert directly to local compressed data URL for instant 100% reliable local storage
+  return readImageAsLocalDataUrl(file);
 };
 
 // ----------------------------------------------------
