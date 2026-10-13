@@ -192,3 +192,58 @@ export const defaultSkills = [
     ]
   }
 ];
+
+export const defaultCertificates = [
+  {
+    id: "cert-iot-embedded",
+    title: "Internet of Things (IoT) & Embedded Systems Prototyping",
+    issuer: "Bakhtiyarpur College of Engineering",
+    issueDate: "2024",
+    credentialId: "BCE-IOT-2024-089",
+    credentialUrl: "https://github.com/dhirajkumar-09/My_Portfolio_",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
+    skills: ["IoT Architecture", "Sensors", "Microcontrollers", "Embedded C"],
+    category: "IoT & Hardware",
+    featured: true,
+    order: 1
+  },
+  {
+    id: "cert-python-dsa",
+    title: "Python Data Structures & Algorithmic Problem Solving",
+    issuer: "HackerRank / Coding Assessment",
+    issueDate: "2024",
+    credentialId: "HR-PY-DSA-55421",
+    credentialUrl: "https://github.com/dhirajkumar-09/My_Portfolio_",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80",
+    skills: ["Python", "DSA", "Algorithms", "Optimization"],
+    category: "Programming",
+    featured: true,
+    order: 2
+  },
+  {
+    id: "cert-web-dev",
+    title: "Modern Full-Stack Web Development with React & Node",
+    issuer: "Coursera / Meta Open Academy",
+    issueDate: "2023",
+    credentialId: "CERT-META-FS-99120",
+    credentialUrl: "https://github.com/dhirajkumar-09/My_Portfolio_",
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+    skills: ["React", "JavaScript", "REST APIs", "Tailwind CSS"],
+    category: "Web Development",
+    featured: true,
+    order: 3
+  },
+  {
+    id: "cert-firebase-cloud",
+    title: "Firebase Cloud Solutions & Real-Time Architectures",
+    issuer: "Google Cloud Skill Boost",
+    issueDate: "2024",
+    credentialId: "GCSB-FB-88310",
+    credentialUrl: "https://github.com/dhirajkumar-09/My_Portfolio_",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80",
+    skills: ["Firebase Firestore", "Authentication", "Cloud Security Rules"],
+    category: "Cloud & Database",
+    featured: true,
+    order: 4
+  }
+];

@@ -25,7 +25,9 @@ import {
   Send,
   User,
   Sliders,
-  Code2
+  Code2,
+  Award,
+  AlertTriangle
 } from 'lucide-react';
 import { Github } from '../components/SocialIcons';
 
@@ -47,13 +49,19 @@ import {
   deleteEducation,
   subscribeToSkills,
   addOrUpdateSkillCategory,
-  deleteSkillCategory
+  deleteSkillCategory,
+  subscribeToCertificates,
+  createCertificate,
+  updateCertificate,
+  deleteCertificate,
+  testFirestoreConnection
 } from '../services/portfolioService';
 import {
   defaultProfile,
   defaultProjects,
   defaultEducation,
-  defaultSkills
+  defaultSkills,
+  defaultCertificates
 } from '../data/defaultPortfolioData';
 import Toast from '../components/Toast';
 
@@ -69,11 +77,12 @@ export default function Admin() {
     isFirebaseConfigured
   } = useAuth();
 
-  // Navigation tab state: 'projects' | 'profile' | 'education' | 'skills' | 'inbox' | 'seed'
+  // Navigation tab state: 'projects' | 'certificates' | 'profile' | 'education' | 'skills' | 'inbox' | 'seed'
   const [activeTab, setActiveTab] = useState('projects');
 
   // Data states
   const [projects, setProjects] = useState([]);
+  const [certificates, setCertificates] = useState([]);
   const [messages, setMessages] = useState([]);
   const [profile, setProfile] = useState(defaultProfile);
   const [educationList, setEducationList] = useState([]);
@@ -87,6 +96,25 @@ export default function Admin() {
 
   // Toast
   const [toast, setToast] = useState(null);
+
+  // Health check state
+  const [dbHealth, setDbHealth] = useState(null);
+  const [isCheckingDb, setIsCheckingDb] = useState(false);
+
+  // Certificate Modal / Form State
+  const [isEditingCert, setIsEditingCert] = useState(false);
+  const [certForm, setCertForm] = useState({
+    id: '',
+    title: '',
+    issuer: '',
+    issueDate: '',
+    credentialId: '',
+    credentialUrl: '',
+    image: '',
+    category: 'IoT & Hardware',
+    skillsStr: '',
+    order: 1
+  });
 
   // Project Modal / Form State
   const [isEditingProject, setIsEditingProject] = useState(false);
@@ -147,6 +175,7 @@ export default function Admin() {
     if (!isAdmin) return;
 
     const unsubProjects = subscribeToProjects((data) => setProjects(data || []));
+    const unsubCerts = subscribeToCertificates((data) => setCertificates(data || []));
     const unsubMessages = subscribeToMessages((data) => setMessages(data || []));
     const unsubProfile = subscribeToProfile((data) => setProfile(data || defaultProfile));
     const unsubEducation = subscribeToEducation((data) => setEducationList(data || []));
@@ -154,6 +183,7 @@ export default function Admin() {
 
     return () => {
       if (unsubProjects) unsubProjects();
+      if (unsubCerts) unsubCerts();
       if (unsubMessages) unsubMessages();
       if (unsubProfile) unsubProfile();
       if (unsubEducation) unsubEducation();
@@ -272,6 +302,98 @@ export default function Admin() {
       } catch (err) {
         setToast({ type: 'error', title: 'Error', message: 'Failed to delete project.' });
       }
+    }
+  };
+
+  // ----------------------------------------------------
+  // CERTIFICATES CRUD
+  // ----------------------------------------------------
+  const handleOpenAddCert = () => {
+    setCertForm({
+      id: '',
+      title: '',
+      issuer: 'Bakhtiyarpur College of Engineering',
+      issueDate: new Date().getFullYear().toString(),
+      credentialId: '',
+      credentialUrl: profile?.github || 'https://github.com/dhirajkumar-09/My_Portfolio_',
+      image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+      category: 'IoT & Hardware',
+      skillsStr: 'IoT Architecture, Microcontrollers',
+      order: certificates.length + 1
+    });
+    setIsEditingCert(true);
+  };
+
+  const handleOpenEditCert = (c) => {
+    setCertForm({
+      id: c.id,
+      title: c.title || '',
+      issuer: c.issuer || '',
+      issueDate: c.issueDate || '',
+      credentialId: c.credentialId || '',
+      credentialUrl: c.credentialUrl || '',
+      image: c.image || '',
+      category: c.category || 'IoT & Hardware',
+      skillsStr: (c.skills || []).join(', '),
+      order: c.order || 1
+    });
+    setIsEditingCert(true);
+  };
+
+  const handleSaveCert = async (e) => {
+    e.preventDefault();
+    const skillsArray = certForm.skillsStr
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const dataToSave = {
+      title: certForm.title,
+      issuer: certForm.issuer,
+      issueDate: certForm.issueDate,
+      credentialId: certForm.credentialId,
+      credentialUrl: certForm.credentialUrl,
+      image: certForm.image,
+      category: certForm.category,
+      skills: skillsArray,
+      order: Number(certForm.order) || 1
+    };
+
+    try {
+      if (certForm.id) {
+        await updateCertificate(certForm.id, dataToSave);
+        setToast({ type: 'success', title: 'Updated', message: `Certificate "${certForm.title}" saved.` });
+      } else {
+        await createCertificate(dataToSave);
+        setToast({ type: 'success', title: 'Created', message: `Certificate "${certForm.title}" added.` });
+      }
+      setIsEditingCert(false);
+    } catch (err) {
+      console.error(err);
+      setToast({ type: 'error', title: 'Error', message: 'Failed to save certificate.' });
+    }
+  };
+
+  const handleDeleteCert = async (id, title) => {
+    if (window.confirm(`Are you sure you want to delete certificate "${title}"?`)) {
+      try {
+        await deleteCertificate(id);
+        setToast({ type: 'success', title: 'Deleted', message: `Certificate deleted.` });
+      } catch (err) {
+        setToast({ type: 'error', title: 'Error', message: 'Failed to delete certificate.' });
+      }
+    }
+  };
+
+  const handleCheckConnection = async () => {
+    setIsCheckingDb(true);
+    try {
+      const result = await testFirestoreConnection();
+      setDbHealth(result);
+    } catch (err) {
+      setDbHealth({ ok: false, message: err.message });
+    } finally {
+      setIsCheckingDb(false);
     }
   };
 
@@ -730,6 +852,18 @@ export default function Admin() {
           </button>
 
           <button
+            onClick={() => setActiveTab('certificates')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-medium transition-all ${
+              activeTab === 'certificates'
+                ? 'bg-cyan-500 text-slate-950 font-bold shadow-glow-cyan/50'
+                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+            }`}
+          >
+            <Award className="w-4 h-4" />
+            <span>Certificates ({certificates.length})</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('profile')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-mono font-medium transition-all ${
               activeTab === 'profile'
@@ -877,6 +1011,99 @@ export default function Admin() {
                         onClick={() => handleDeleteProject(p.id, p.title)}
                         className="p-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 transition-colors"
                         title="Delete project"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ---------------------------------------------------- */}
+        {/* TAB: CERTIFICATES CATALOG */}
+        {/* ---------------------------------------------------- */}
+        {activeTab === 'certificates' && (
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-display font-bold text-white">
+                  Certifications &amp; Credentials ({certificates.length})
+                </h2>
+                <p className="text-xs font-mono text-slate-400">
+                  Manage technical certifications, verification links, and skill badges.
+                </p>
+              </div>
+
+              <button
+                onClick={handleOpenAddCert}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-glow-cyan transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add New Certificate</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {certificates.map((c) => (
+                <div
+                  key={c.id}
+                  className="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 space-y-4 flex flex-col justify-between"
+                >
+                  <div className="space-y-3">
+                    <div className="relative h-40 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                      <img
+                        src={c.image || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80"}
+                        alt={c.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-black/70 text-cyan-300 backdrop-blur-md">
+                        {c.category || 'Certification'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-[11px] font-mono text-cyan-400 font-semibold block">
+                        {c.issuer} &bull; {c.issueDate}
+                      </span>
+                      <h3 className="text-base font-display font-bold text-white mt-1 line-clamp-2">
+                        {c.title}
+                      </h3>
+                      {c.credentialId && (
+                        <p className="text-[10px] font-mono text-slate-500 mt-1">
+                          ID: {c.credentialId}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-1">
+                      {(c.skills || []).map((s, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+                    <span className="text-slate-500 font-mono">Order: #{c.order}</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleOpenEditCert(c)}
+                        className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 transition-colors cursor-pointer"
+                        title="Edit certificate"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCert(c.id, c.title)}
+                        className="p-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 transition-colors cursor-pointer"
+                        title="Delete certificate"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -1510,12 +1737,66 @@ export default function Admin() {
                 <button
                   onClick={handleSeed}
                   disabled={isSeeding}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-glow-cyan transition-all disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-glow-cyan transition-all disabled:opacity-50 cursor-pointer"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isSeeding ? 'animate-spin' : ''}`} />
                   <span>{isSeeding ? 'Writing Data to Firestore...' : 'Seed All Collections'}</span>
                 </button>
               </div>
+            </div>
+
+            {/* Live Firestore Connection Diagnostics */}
+            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <Shield className="w-6 h-6 text-emerald-400 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-base font-display font-bold text-white">
+                      Live Firestore Health Check
+                    </h3>
+                    <p className="text-xs text-slate-300 leading-relaxed mt-1 font-sans">
+                      Verify whether your Firebase Security Rules and Firestore project are allowing real-time reads and writes.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleCheckConnection}
+                  disabled={isCheckingDb}
+                  className="px-4 py-2 rounded-xl text-xs font-mono font-medium bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 flex items-center gap-2 cursor-pointer transition-all flex-shrink-0"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isCheckingDb ? 'animate-spin' : ''}`} />
+                  <span>{isCheckingDb ? 'Checking...' : 'Run Diagnostics'}</span>
+                </button>
+              </div>
+
+              {dbHealth && (
+                <div
+                  className={`p-4 rounded-xl border text-xs font-mono space-y-2 ${
+                    dbHealth.ok
+                      ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-200'
+                      : 'bg-rose-950/60 border-rose-500/40 text-rose-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 font-bold">
+                    {dbHealth.ok ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <AlertTriangle className="w-4 h-4 text-rose-400" />
+                    )}
+                    <span>{dbHealth.message}</span>
+                  </div>
+
+                  {!dbHealth.ok && (
+                    <div className="mt-2 pt-2 border-t border-rose-500/20 text-[11px] text-slate-300 space-y-1">
+                      <p className="font-semibold text-amber-300">Quick Fix for Firestore:</p>
+                      <p>1. Open Firebase Console &gt; Firestore Database &gt; Rules.</p>
+                      <p>2. Set rules to allow access or publish the provided rules in <span className="font-mono text-cyan-300">firestore.rules</span>.</p>
+                      <p>3. Click &quot;Publish&quot; in Firebase Console, then run diagnostics again.</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1617,15 +1898,51 @@ export default function Admin() {
 
               <div>
                 <label className="block text-xs font-mono text-slate-300 mb-1">
-                  Cover Image URL
+                  Cover Image URL or File Upload
                 </label>
-                <input
-                  type="text"
-                  value={projectForm.image}
-                  onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={projectForm.image}
+                    onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
+                    placeholder="https://images.unsplash.com/... or upload"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                  />
+                  <label className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-cyan-300 flex items-center gap-1.5 cursor-pointer transition-colors">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          try {
+                            const url = await uploadFile(file, `projects/${Date.now()}_${file.name}`);
+                            setProjectForm((prev) => ({ ...prev, image: url }));
+                            setToast({ type: 'success', title: 'Uploaded', message: 'Project image uploaded successfully.' });
+                          } catch (err) {
+                            setToast({ type: 'error', title: 'Upload Failed', message: err.message });
+                          }
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+
+                {projectForm.image && (
+                  <div className="mt-2.5 relative w-full h-36 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
+                    <img
+                      src={projectForm.image}
+                      alt="Project Preview"
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1702,6 +2019,209 @@ export default function Admin() {
                   className="px-6 py-2.5 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-glow-cyan"
                 >
                   Save Project
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------------------------------------------- */}
+      {/* EDIT / CREATE CERTIFICATE MODAL */}
+      {/* ---------------------------------------------------- */}
+      {isEditingCert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8 space-y-5 my-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <h3 className="text-lg font-display font-bold text-white flex items-center gap-2">
+                <Award className="w-5 h-5 text-emerald-400" />
+                <span>{certForm.id ? 'Edit Certificate' : 'Add New Certificate'}</span>
+              </h3>
+              <button
+                onClick={() => setIsEditingCert(false)}
+                className="text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCert} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-mono text-slate-300 mb-1">
+                    Certificate Title *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={certForm.title}
+                    onChange={(e) => setCertForm({ ...certForm, title: e.target.value })}
+                    placeholder="e.g. IoT & Embedded Systems Prototyping"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-300 mb-1">
+                    Issuer / Institution *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={certForm.issuer}
+                    onChange={(e) => setCertForm({ ...certForm, issuer: e.target.value })}
+                    placeholder="e.g. Bakhtiyarpur College of Engineering"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-mono text-slate-300 mb-1">
+                    Issue Date / Year
+                  </label>
+                  <input
+                    type="text"
+                    value={certForm.issueDate}
+                    onChange={(e) => setCertForm({ ...certForm, issueDate: e.target.value })}
+                    placeholder="2024"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-300 mb-1">
+                    Category
+                  </label>
+                  <select
+                    value={certForm.category}
+                    onChange={(e) => setCertForm({ ...certForm, category: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                  >
+                    <option value="IoT & Hardware">IoT &amp; Hardware</option>
+                    <option value="Programming">Programming</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Cloud & Database">Cloud &amp; Database</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-300 mb-1">
+                    Display Order
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={certForm.order}
+                    onChange={(e) => setCertForm({ ...certForm, order: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-mono text-slate-300 mb-1">
+                    Credential ID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={certForm.credentialId}
+                    onChange={(e) => setCertForm({ ...certForm, credentialId: e.target.value })}
+                    placeholder="e.g. BCE-IOT-2024"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-300 mb-1">
+                    Verification Link (URL)
+                  </label>
+                  <input
+                    type="url"
+                    value={certForm.credentialUrl}
+                    onChange={(e) => setCertForm({ ...certForm, credentialUrl: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-300 mb-1">
+                  Skills &amp; Competencies (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={certForm.skillsStr}
+                  onChange={(e) => setCertForm({ ...certForm, skillsStr: e.target.value })}
+                  placeholder="e.g. IoT Architecture, Microcontrollers, Embedded C"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-300 mb-1">
+                  Certificate Image URL or Upload
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={certForm.image}
+                    onChange={(e) => setCertForm({ ...certForm, image: e.target.value })}
+                    placeholder="https://... or upload certificate image"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                  />
+                  <label className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-cyan-300 flex items-center gap-1.5 cursor-pointer transition-colors">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          try {
+                            const url = await uploadFile(file, `certificates/${Date.now()}_${file.name}`);
+                            setCertForm((prev) => ({ ...prev, image: url }));
+                            setToast({ type: 'success', title: 'Uploaded', message: 'Certificate image uploaded.' });
+                          } catch (err) {
+                            setToast({ type: 'error', title: 'Upload Failed', message: err.message });
+                          }
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+
+                {certForm.image && (
+                  <div className="mt-2.5 relative w-full h-36 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
+                    <img
+                      src={certForm.image}
+                      alt="Certificate Preview"
+                      className="w-full h-full object-contain"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingCert(false)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-mono text-slate-400 hover:text-white cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-glow-cyan cursor-pointer"
+                >
+                  {certForm.id ? 'Save Certificate Changes' : 'Create Certificate'}
                 </button>
               </div>
             </form>

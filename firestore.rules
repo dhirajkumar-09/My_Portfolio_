@@ -36,6 +36,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /certificates/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // 2. Contact Messages: Public can only CREATE with strict validation, only Admin can READ, UPDATE or DELETE
     match /messages/{messageId} {
       // Anyone can submit a message if it contains valid sanitized fields

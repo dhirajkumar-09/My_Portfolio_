@@ -18,7 +18,8 @@ import {
   defaultProfile,
   defaultProjects,
   defaultEducation,
-  defaultSkills
+  defaultSkills,
+  defaultCertificates
 } from '../data/defaultPortfolioData';
 
 // Local storage keys for offline/fallback caching
@@ -27,6 +28,7 @@ const STORAGE_KEYS = {
   PROJECTS: 'dhiraj_portfolio_projects',
   EDUCATION: 'dhiraj_portfolio_education',
   SKILLS: 'dhiraj_portfolio_skills',
+  CERTIFICATES: 'dhiraj_portfolio_certificates',
   MESSAGES: 'dhiraj_portfolio_messages',
 };
 
@@ -400,6 +402,111 @@ export const uploadFile = async (file, path = 'resumes/dhiraj_kumar_resume.pdf')
 };
 
 // ----------------------------------------------------
+// CERTIFICATES SERVICES
+// ----------------------------------------------------
+export const subscribeToCertificates = (callback) => {
+  if (isFirebaseConfigured && db) {
+    const q = query(collection(db, 'certificates'), orderBy('order', 'asc'));
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        if (!snapshot.empty) {
+          const list = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data()
+          }));
+          setLocal(STORAGE_KEYS.CERTIFICATES, list);
+          callback(list);
+        } else {
+          callback(getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates));
+        }
+      },
+      (error) => {
+        console.warn('Firestore certificates snapshot error:', error);
+        callback(getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates));
+      }
+    );
+  } else {
+    callback(getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates));
+    return () => {};
+  }
+};
+
+export const createCertificate = async (certData) => {
+  if (isFirebaseConfigured && db) {
+    const docRef = await addDoc(collection(db, 'certificates'), {
+      ...certData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return { id: docRef.id, ...certData };
+  } else {
+    const current = getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates);
+    const newCert = { id: `cert-${Date.now()}`, ...certData };
+    const updated = [newCert, ...current];
+    setLocal(STORAGE_KEYS.CERTIFICATES, updated);
+    return newCert;
+  }
+};
+
+export const updateCertificate = async (id, certData) => {
+  if (isFirebaseConfigured && db) {
+    const docRef = doc(db, 'certificates', id);
+    await updateDoc(docRef, {
+      ...certData,
+      updatedAt: serverTimestamp()
+    });
+  }
+  const current = getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates);
+  const updated = current.map((c) => (c.id === id ? { ...c, ...certData } : c));
+  setLocal(STORAGE_KEYS.CERTIFICATES, updated);
+  return { id, ...certData };
+};
+
+export const deleteCertificate = async (id) => {
+  if (isFirebaseConfigured && db) {
+    await deleteDoc(doc(db, 'certificates', id));
+  }
+  const current = getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates);
+  const updated = current.filter((c) => c.id !== id);
+  setLocal(STORAGE_KEYS.CERTIFICATES, updated);
+  return id;
+};
+
+// ----------------------------------------------------
+// FIRESTORE HEALTH CHECK
+// ----------------------------------------------------
+export const testFirestoreConnection = async () => {
+  if (!isFirebaseConfigured || !db) {
+    return {
+      ok: false,
+      status: 'offline_mode',
+      message: 'Firebase is not initialized. Using local offline storage mode.'
+    };
+  }
+  try {
+    const testDoc = await getDoc(doc(db, 'profile', 'main'));
+    return {
+      ok: true,
+      status: 'connected',
+      exists: testDoc.exists(),
+      message: testDoc.exists()
+        ? 'Connected to live Firestore. Data documents exist.'
+        : 'Connected to Firestore. Database is active, ready to be seeded.'
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 'permission_denied',
+      error: err.code || err.message,
+      message: err.message?.includes('permission')
+        ? 'Connected to Firestore, but Security Rules rejected access. Please publish rules in Firebase Console.'
+        : `Connection check returned: ${err.message}`
+    };
+  }
+};
+
+// ----------------------------------------------------
 // SEED DATABASE UTILITY
 // ----------------------------------------------------
 export const seedDatabase = async () => {
@@ -434,6 +541,14 @@ export const seedDatabase = async () => {
     await setDoc(doc(db, 'skills', `category_${idx}`), {
       ...skillCat,
       order: idx,
+      updatedAt: serverTimestamp()
+    });
+  }
+
+  // 5. Seed Certificates
+  for (const cert of defaultCertificates) {
+    await setDoc(doc(db, 'certificates', cert.id), {
+      ...cert,
       updatedAt: serverTimestamp()
     });
   }

@@ -11,19 +11,22 @@ import About from '../sections/About';
 import Education from '../sections/Education';
 import Skills from '../sections/Skills';
 import Projects from '../sections/Projects';
+import Certificates from '../sections/Certificates';
 import Contact from '../sections/Contact';
 
 import {
   subscribeToProfile,
   subscribeToProjects,
   subscribeToEducation,
-  subscribeToSkills
+  subscribeToSkills,
+  subscribeToCertificates
 } from '../services/portfolioService';
 import {
   defaultProfile,
   defaultProjects,
   defaultEducation,
-  defaultSkills
+  defaultSkills,
+  defaultCertificates
 } from '../data/defaultPortfolioData';
 
 export default function Home() {
@@ -31,6 +34,7 @@ export default function Home() {
   const [projects, setProjects] = useState(defaultProjects);
   const [educationList, setEducationList] = useState(defaultEducation);
   const [skillsList, setSkillsList] = useState(defaultSkills);
+  const [certificates, setCertificates] = useState(defaultCertificates);
   const [projectsLoading, setProjectsLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -57,11 +61,17 @@ export default function Home() {
       if (data && data.length > 0) setSkillsList(data);
     });
 
+    // 5. Subscribe to certificates
+    const unsubCerts = subscribeToCertificates((data) => {
+      if (data && data.length > 0) setCertificates(data);
+    });
+
     return () => {
       if (typeof unsubProfile === 'function') unsubProfile();
       if (typeof unsubProjects === 'function') unsubProjects();
       if (typeof unsubEducation === 'function') unsubEducation();
       if (typeof unsubSkills === 'function') unsubSkills();
+      if (typeof unsubCerts === 'function') unsubCerts();
     };
   }, []);
 
@@ -85,6 +95,7 @@ export default function Home() {
         <Education educationList={educationList} />
         <Skills skillsList={skillsList} />
         <Projects projects={projects} loading={projectsLoading} />
+        <Certificates certificates={certificates} />
         <Contact profile={profile} onToast={setToast} />
       </main>
 

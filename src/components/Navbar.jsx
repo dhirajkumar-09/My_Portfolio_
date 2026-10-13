@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { label: 'Education', href: '#education' },
   { label: 'Skills', href: '#skills' },
   { label: 'Projects', href: '#projects' },
+  { label: 'Certificates', href: '#certificates' },
   { label: 'Contact', href: '#contact' },
 ];
 
@@ -26,7 +27,7 @@ export default function Navbar() {
 
       if (!isHomePage) return;
 
-      const sections = ['hero', 'about', 'education', 'skills', 'projects', 'contact'];
+      const sections = ['hero', 'about', 'education', 'skills', 'projects', 'certificates', 'contact'];
       const scrollPosition = window.scrollY + 200;
 
       for (const sectionId of sections) {
