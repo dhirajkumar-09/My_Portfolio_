@@ -320,6 +320,29 @@ export default function Hero({ profile }) {
           </div>
 
         </div>
+
+        {/* Animated Scroll Down Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1 }}
+          className="flex justify-center pt-8 sm:pt-12"
+        >
+          <button
+            onClick={() => scrollTo('about')}
+            className="flex flex-col items-center gap-2 group cursor-pointer text-slate-400 hover:text-cyan-400 transition-colors"
+          >
+            <span className="text-[10px] font-mono tracking-widest uppercase">Scroll to Explore</span>
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+              className="w-5 h-8 rounded-full border border-slate-300 dark:border-slate-700 group-hover:border-cyan-400 flex items-start justify-center p-1 transition-colors"
+            >
+              <div className="w-1 h-2 rounded-full bg-cyan-400" />
+            </motion.div>
+          </button>
+        </motion.div>
+
       </div>
     </section>
   );

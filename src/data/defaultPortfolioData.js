@@ -13,6 +13,26 @@ export const defaultProfile = {
   ],
   tagline: "Engineering intelligent IoT ecosystems and scalable web architectures that bridge physical hardware with modern cloud intelligence.",
   bio: "Motivated, detail-oriented B.Tech student in Computer Science & Engineering with IoT Specialization at Bakhtiyarpur College of Engineering, Patna. Actively seeking an internship or entry-level software/IoT developer role to engineer real-world systems, learn from industry leaders, and contribute impactful solutions.",
+  aboutHeading: "About My Engineering Journey",
+  aboutSubtitle: "Combining academic rigor with hands-on systems development to build purposeful technology.",
+  aboutBadge: "Career Objective & Aspirations",
+  aboutTitle: "B.Tech Student in CSE (IoT Specialization)",
+  aboutBio2: "Currently in my 2nd year (2023–2027), I focus on writing clean, modular code, designing hardware telemetry pipelines, and building accessible full-stack apps. Whether managing crowd flows in stadiums or building empathetic AI companions, I thrive on turning complex problems into elegant software solutions.",
+  affiliation: "Bakhtiyarpur College of Engg., Patna",
+  pillars: [
+    {
+      title: "IoT & Embedded Engineering",
+      desc: "Passionate about integrating microcontrollers, sensor telemetry, and hardware protocols with cloud dashboards for real-time monitoring."
+    },
+    {
+      title: "Modern Full-Stack Web",
+      desc: "Crafting responsive, high-performance web applications using React, modern JavaScript, Tailwind CSS, and Firebase backend services."
+    },
+    {
+      title: "Data Structures & Algorithms",
+      desc: "Writing optimized algorithms in Python, Java, and C with a disciplined approach to time-space complexity and object-oriented patterns."
+    }
+  ],
   resumeUrl: "/resume.pdf",
   github: "https://github.com/dhirajkumar-09/My_Portfolio_",
   linkedin: "https://linkedin.com",

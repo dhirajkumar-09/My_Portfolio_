@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 
 /**
  * ============================================================================
@@ -228,12 +228,6 @@ export default function ParticleMorph({
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
 
-  // Active shape state for UI pills
-  const [activeShapeIdx, setActiveShapeIdx] = useState(0);
-
-  // Controller ref to communicate external/button morph triggers to RAF loop
-  const triggerRef = useRef(null);
-
   const effectiveCount = useMemo(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       return Math.min(count, 350);
@@ -342,15 +336,6 @@ export default function ParticleMorph({
     let isMorphing = false;
     let phaseStart = performance.now();
 
-    // Attach external trigger function for manual shape buttons
-    triggerRef.current = (targetShapeIndex) => {
-      if (targetShapeIndex === shapeIdx && !isMorphing) return;
-      nextIdx = targetShapeIndex;
-      isMorphing = true;
-      phaseStart = performance.now();
-      setActiveShapeIdx(targetShapeIndex);
-    };
-
     // 3D Camera / Rotation
     let rotY = 0;
     let rotX = 0.22;
@@ -379,7 +364,6 @@ export default function ParticleMorph({
         if (elapsed >= holdTime) {
           isMorphing = true;
           phaseStart = now;
-          setActiveShapeIdx(nextIdx);
         }
       } else {
         const progress = Math.min(elapsed / morphTime, 1);
@@ -414,7 +398,6 @@ export default function ParticleMorph({
           phaseStart = now;
           shapeIdx = nextIdx;
           nextIdx = (shapeIdx + 1) % buffers.length;
-          setActiveShapeIdx(shapeIdx);
         }
       }
 
@@ -526,12 +509,6 @@ export default function ParticleMorph({
     };
   }, [effectiveCount]);
 
-  const handleShapeSelect = (idx) => {
-    if (triggerRef.current) {
-      triggerRef.current(idx);
-    }
-  };
-
   return (
     <div
       ref={containerRef}
@@ -543,29 +520,6 @@ export default function ParticleMorph({
         ref={canvasRef}
         className="absolute inset-0 block w-full h-full cursor-crosshair"
       />
-
-      {/* Interactive Shape Selector Bar */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1 sm:gap-1.5 p-1 rounded-xl bg-slate-950/85 backdrop-blur-md border border-emerald-500/20 text-[10px] sm:text-[11px] font-mono z-20 shadow-lg">
-        {shapes.map((s, idx) => {
-          const displayName = s === 'DOUBLE HELIX' ? 'DNA Helix' : s;
-          const isActive = activeShapeIdx === idx;
-          return (
-            <button
-              key={s}
-              onClick={() => handleShapeSelect(idx)}
-              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer font-medium ${
-                isActive
-                  ? 'bg-emerald-500/25 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-              }`}
-              title={`Morph to ${displayName}`}
-            >
-              {isActive && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse" />}
-              {displayName}
-            </button>
-          );
-        })}
-      </div>
     </div>
   );
 }

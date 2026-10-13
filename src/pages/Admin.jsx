@@ -404,10 +404,31 @@ export default function Admin() {
     e.preventDefault();
     try {
       await updateProfileData(profile);
-      setToast({ type: 'success', title: 'Saved', message: 'All profile and hero details updated!' });
+      setToast({ type: 'success', title: 'Saved', message: 'All profile, hero and about section details updated!' });
     } catch (err) {
       setToast({ type: 'error', title: 'Error', message: 'Failed to update profile.' });
     }
+  };
+
+  const updatePillar = (index, field, value) => {
+    const currentPillars = profile.pillars && profile.pillars.length === 3
+      ? [...profile.pillars]
+      : [
+          {
+            title: 'IoT & Embedded Engineering',
+            desc: 'Passionate about integrating microcontrollers, sensor telemetry, and hardware protocols with cloud dashboards for real-time monitoring.'
+          },
+          {
+            title: 'Modern Full-Stack Web',
+            desc: 'Crafting responsive, high-performance web applications using React, modern JavaScript, Tailwind CSS, and Firebase backend services.'
+          },
+          {
+            title: 'Data Structures & Algorithms',
+            desc: 'Writing optimized algorithms in Python, Java, and C with a disciplined approach to time-space complexity and object-oriented patterns.'
+          }
+        ];
+    currentPillars[index] = { ...currentPillars[index], [field]: value };
+    setProfile({ ...profile, pillars: currentPillars });
   };
 
   const handleResumeFileChange = async (e) => {
@@ -1217,17 +1238,183 @@ export default function Admin() {
                     className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 resize-none"
                   />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-mono text-slate-300 mb-1">
-                    Career Objective / About Narrative
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={profile.bio || ''}
-                    onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 resize-none"
-                  />
+              {/* About Section Customization (Career Objective, Bio & 3 Engineering Pillars) */}
+              <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-5">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div>
+                    <h3 className="text-sm font-mono uppercase tracking-wider text-cyan-400 font-bold">
+                      About Section Customization
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Customize every heading, career objective statement, biography narrative, and the 3 engineering focus pillars.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Section Heading & Subtitle */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">
+                      Section Main Title
+                    </label>
+                    <input
+                      type="text"
+                      value={profile.aboutHeading || 'About My Engineering Journey'}
+                      onChange={(e) => setProfile({ ...profile, aboutHeading: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">
+                      Section Subtitle
+                    </label>
+                    <input
+                      type="text"
+                      value={profile.aboutSubtitle || 'Combining academic rigor with hands-on systems development to build purposeful technology.'}
+                      onChange={(e) => setProfile({ ...profile, aboutSubtitle: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Career Objective Card Fields */}
+                <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-4">
+                  <h4 className="text-xs font-mono uppercase tracking-wider text-emerald-400 font-semibold">
+                    Left Card: Career Objective &amp; Bio Narrative
+                  </h4>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-mono text-slate-300 mb-1">
+                        Top Badge Text
+                      </label>
+                      <input
+                        type="text"
+                        value={profile.aboutBadge || 'Career Objective & Aspirations'}
+                        onChange={(e) => setProfile({ ...profile, aboutBadge: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-slate-300 mb-1">
+                        Degree / Specialization Headline
+                      </label>
+                      <input
+                        type="text"
+                        value={profile.aboutTitle || profile.title || 'B.Tech Student in CSE (IoT Specialization)'}
+                        onChange={(e) => setProfile({ ...profile, aboutTitle: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-slate-300 mb-1">
+                        Current Affiliation Label
+                      </label>
+                      <input
+                        type="text"
+                        value={profile.affiliation || profile.college || 'Bakhtiyarpur College of Engg., Patna'}
+                        onChange={(e) => setProfile({ ...profile, affiliation: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">
+                      Objective Statement (Paragraph 1)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={profile.bio || ''}
+                      onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                      placeholder="Motivated, detail-oriented B.Tech student in Computer Science & Engineering..."
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">
+                      Academic Narrative / Journey (Paragraph 2)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={profile.aboutBio2 || ''}
+                      onChange={(e) => setProfile({ ...profile, aboutBio2: e.target.value })}
+                      placeholder="Currently in my 2nd year (2023–2027), I focus on writing clean, modular code..."
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* 3 Pillars Customization */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-semibold">
+                    Right Column: 3 Engineering Focus Pillars
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {/* Pillar 1 */}
+                    <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
+                      <span className="text-[11px] font-mono font-semibold text-cyan-400">Pillar 1 (IoT)</span>
+                      <input
+                        type="text"
+                        value={profile.pillars?.[0]?.title || 'IoT & Embedded Engineering'}
+                        onChange={(e) => updatePillar(0, 'title', e.target.value)}
+                        placeholder="Pillar 1 Title"
+                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400"
+                      />
+                      <textarea
+                        rows={3}
+                        value={profile.pillars?.[0]?.desc || 'Passionate about integrating microcontrollers, sensor telemetry, and hardware protocols with cloud dashboards for real-time monitoring.'}
+                        onChange={(e) => updatePillar(0, 'desc', e.target.value)}
+                        placeholder="Pillar 1 Description"
+                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 resize-none"
+                      />
+                    </div>
+
+                    {/* Pillar 2 */}
+                    <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
+                      <span className="text-[11px] font-mono font-semibold text-blue-400">Pillar 2 (Web)</span>
+                      <input
+                        type="text"
+                        value={profile.pillars?.[1]?.title || 'Modern Full-Stack Web'}
+                        onChange={(e) => updatePillar(1, 'title', e.target.value)}
+                        placeholder="Pillar 2 Title"
+                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400"
+                      />
+                      <textarea
+                        rows={3}
+                        value={profile.pillars?.[1]?.desc || 'Crafting responsive, high-performance web applications using React, modern JavaScript, Tailwind CSS, and Firebase backend services.'}
+                        onChange={(e) => updatePillar(1, 'desc', e.target.value)}
+                        placeholder="Pillar 2 Description"
+                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 resize-none"
+                      />
+                    </div>
+
+                    {/* Pillar 3 */}
+                    <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
+                      <span className="text-[11px] font-mono font-semibold text-emerald-400">Pillar 3 (DSA)</span>
+                      <input
+                        type="text"
+                        value={profile.pillars?.[2]?.title || 'Data Structures & Algorithms'}
+                        onChange={(e) => updatePillar(2, 'title', e.target.value)}
+                        placeholder="Pillar 3 Title"
+                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400"
+                      />
+                      <textarea
+                        rows={3}
+                        value={profile.pillars?.[2]?.desc || 'Writing optimized algorithms in Python, Java, and C with a disciplined approach to time-space complexity and object-oriented patterns.'}
+                        onChange={(e) => updatePillar(2, 'desc', e.target.value)}
+                        placeholder="Pillar 3 Description"
+                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 resize-none"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
