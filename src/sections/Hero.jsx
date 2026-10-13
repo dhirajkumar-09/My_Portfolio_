@@ -254,7 +254,7 @@ export default function Hero({ profile }) {
               transition={{ duration: 0.7, delay: 0.2 }}
               className="w-full max-w-md"
             >
-              <TiltCard maxTilt={6} className="relative rounded-3xl">
+              <div className="relative rounded-3xl">
                 {/* Outer dynamic ambient blur glow */}
                 <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/30 via-sky-600/20 to-emerald-500/30 rounded-3xl blur-xl opacity-60 animate-pulse-slow pointer-events-none" />
 
@@ -274,11 +274,11 @@ export default function Hero({ profile }) {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                       </span>
-                      <span>iot-node-patna.core</span>
+                      <span>Patna Station [25.6°N, 85.1°E]</span>
                     </div>
                   </div>
 
-                  {/* 3D Centerpiece Showcase */}
+                  {/* 3D Cyber Earth Globe Showcase */}
                   <div className="rounded-2xl overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border border-slate-800/80 relative shadow-inner">
                     <IoTScene3D />
                   </div>
@@ -316,7 +316,7 @@ export default function Hero({ profile }) {
                   </div>
 
                 </div>
-              </TiltCard>
+              </div>
             </motion.div>
           </div>
 

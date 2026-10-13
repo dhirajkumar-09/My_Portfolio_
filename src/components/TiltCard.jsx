@@ -1,24 +1,27 @@
 import React, { useState, useRef } from 'react';
 
 /**
- * TiltCard creates a tactile, physical 3D tilt effect on hover.
- * Includes a subtle radial specular glow tracking the cursor.
+ * TiltCard creates a smooth, jitter-free 3D tilt effect on hover.
+ * Uses a stationary outer wrapper to prevent bounding rect shifting,
+ * completely eliminating hover shaking and glitching.
  */
 export default function TiltCard({
   children,
   className = '',
-  maxTilt = 12,
+  maxTilt = 7,
   perspective = 1000,
   glowColor = 'rgba(6, 182, 212, 0.15)',
   ...props
 }) {
-  const cardRef = useRef(null);
-  const [transform, setTransform] = useState('');
+  const containerRef = useRef(null);
+  const [transform, setTransform] = useState('perspective(1000px) rotateX(0deg) rotateY(0deg)');
   const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
 
   const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
@@ -29,7 +32,7 @@ export default function TiltCard({
     const rotateY = ((x - centerX) / centerX) * maxTilt;
 
     setTransform(
-      `perspective(${perspective}px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`
+      `perspective(${perspective}px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg)`
     );
 
     setGlare({
@@ -40,32 +43,37 @@ export default function TiltCard({
   };
 
   const handleMouseLeave = () => {
-    setTransform(`perspective(${perspective}px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`);
+    setTransform(`perspective(${perspective}px) rotateX(0deg) rotateY(0deg)`);
     setGlare((prev) => ({ ...prev, opacity: 0 }));
   };
 
   return (
     <div
-      ref={cardRef}
+      ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{
-        transform,
-        transition: 'transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1)'
-      }}
-      className={`relative will-change-transform ${className}`}
+      className={`relative ${className}`}
       {...props}
     >
-      {children}
-
-      {/* Dynamic 3D lighting glow */}
       <div
-        className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-300"
         style={{
-          opacity: glare.opacity,
-          background: `radial-gradient(circle 240px at ${glare.x}% ${glare.y}%, ${glowColor}, transparent 75%)`
+          transform,
+          transition: 'transform 0.16s ease-out',
+          transformStyle: 'preserve-3d'
         }}
-      />
+        className="w-full h-full relative"
+      >
+        {children}
+
+        {/* Dynamic 3D lighting glow */}
+        <div
+          className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-300 z-10"
+          style={{
+            opacity: glare.opacity,
+            background: `radial-gradient(circle 240px at ${glare.x}% ${glare.y}%, ${glowColor}, transparent 75%)`
+          }}
+        />
+      </div>
     </div>
   );
 }

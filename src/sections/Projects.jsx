@@ -4,7 +4,6 @@ import { ExternalLink, Eye, Sparkles, Layers, ArrowUpRight } from 'lucide-react'
 import { Github } from '../components/SocialIcons';
 import SectionHeading from '../components/SectionHeading';
 import ProjectModal from '../components/ProjectModal';
-import TiltCard from '../components/TiltCard';
 
 export default function Projects({ projects, loading }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -72,15 +71,10 @@ export default function Projects({ projects, loading }) {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4, delay: idx * 0.1 }}
-                  className="h-full"
+                  className="h-full rounded-2xl bg-white/95 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl overflow-hidden hover:border-cyan-500/50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col group"
                 >
-                  <TiltCard
-                    maxTilt={6}
-                    perspective={1200}
-                    className="h-full rounded-2xl bg-white/95 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl overflow-hidden hover:border-cyan-500/40 transition-colors shadow-lg flex flex-col group"
-                  >
-                    {/* Card Thumbnail */}
-                    <div className="relative h-52 w-full overflow-hidden bg-slate-950">
+                  {/* Card Thumbnail */}
+                  <div className="relative h-52 w-full overflow-hidden bg-slate-950">
                     <img
                       src={project.image || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80"}
                       alt={project.title}
@@ -189,8 +183,7 @@ export default function Projects({ projects, loading }) {
                     </div>
 
                   </div>
-                </TiltCard>
-              </motion.div>
+                </motion.div>
               ))}
             </AnimatePresence>
           </div>
