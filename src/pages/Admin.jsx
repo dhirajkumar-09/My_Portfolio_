@@ -2092,10 +2092,24 @@ export default function Admin() {
                     type="text"
                     value={projectForm.image}
                     onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
-                    placeholder="https://images.unsplash.com/... or upload"
+                    onPaste={async (e) => {
+                      const files = e.clipboardData?.files;
+                      if (files && files.length > 0 && files[0].type.startsWith('image/')) {
+                        e.preventDefault();
+                        const file = files[0];
+                        try {
+                          const url = await uploadFile(file, `projects/${Date.now()}_${file.name || 'pasted.png'}`);
+                          setProjectForm((prev) => ({ ...prev, image: url }));
+                          setToast({ type: 'success', title: 'Pasted & Uploaded', message: 'Pasted image uploaded successfully!' });
+                        } catch (err) {
+                          setToast({ type: 'error', title: 'Upload Failed', message: err.message });
+                        }
+                      }
+                    }}
+                    placeholder="https://images.unsplash.com/... or upload or paste image"
                     className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
                   />
-                  <label className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-cyan-300 flex items-center gap-1.5 cursor-pointer transition-colors">
+                  <label className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-mono text-cyan-300 flex items-center gap-1.5 cursor-pointer transition-colors flex-shrink-0">
                     <Upload className="w-3.5 h-3.5" />
                     <span>Upload</span>
                     <input
@@ -2118,7 +2132,19 @@ export default function Admin() {
                   </label>
                 </div>
 
-                {projectForm.image && (
+                {projectForm.image?.startsWith('blob:https://') && (
+                  <div className="mt-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-1">
+                    <p className="font-semibold flex items-center gap-1">
+                      <span>⚠️ WhatsApp Web Link Notice:</span>
+                    </p>
+                    <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                      WhatsApp Web creates private temporary browser links (<span className="font-mono">blob:https://...</span>) that other websites cannot open.
+                      Please download the image from WhatsApp to your computer and click the <strong className="text-white">"Upload"</strong> button, or copy-paste the image file directly!
+                    </p>
+                  </div>
+                )}
+
+                {projectForm.image && !projectForm.image.startsWith('blob:https://') && (
                   <div className="mt-2.5 relative w-full h-36 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center">
                     <img
                       src={projectForm.image}

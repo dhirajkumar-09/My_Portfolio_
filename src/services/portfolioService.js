@@ -121,43 +121,69 @@ export const subscribeToProjects = (callback) => {
 };
 
 export const createProject = async (projectData) => {
+  const current = getLocal(STORAGE_KEYS.PROJECTS, defaultProjects);
+  let finalId = `proj-${Date.now()}`;
+
   if (isFirebaseConfigured && db) {
-    const docRef = await addDoc(collection(db, 'projects'), {
-      ...projectData,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-    return { id: docRef.id, ...projectData };
-  } else {
-    const current = getLocal(STORAGE_KEYS.PROJECTS, defaultProjects);
-    const newProj = { id: `proj-${Date.now()}`, ...projectData };
-    const updated = [newProj, ...current];
-    setLocal(STORAGE_KEYS.PROJECTS, updated);
-    return newProj;
+    try {
+      const docRef = await addDoc(collection(db, 'projects'), {
+        ...projectData,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      finalId = docRef.id;
+    } catch (err) {
+      console.warn('Firestore createProject sync error (using local id):', err);
+    }
   }
+
+  const newProj = { id: finalId, ...projectData };
+  const updated = [newProj, ...current];
+  setLocal(STORAGE_KEYS.PROJECTS, updated);
+  return newProj;
 };
 
 export const updateProject = async (id, projectData) => {
-  if (isFirebaseConfigured && db) {
-    const docRef = doc(db, 'projects', id);
-    await updateDoc(docRef, {
-      ...projectData,
-      updatedAt: serverTimestamp()
-    });
-  }
+  // 1. Immediately update local storage so data is NEVER lost
   const current = getLocal(STORAGE_KEYS.PROJECTS, defaultProjects);
-  const updated = current.map((p) => (p.id === id ? { ...p, ...projectData } : p));
+  const exists = current.some((p) => p.id === id);
+  const updated = exists
+    ? current.map((p) => (p.id === id ? { ...p, ...projectData } : p))
+    : [{ id, ...projectData }, ...current];
   setLocal(STORAGE_KEYS.PROJECTS, updated);
+
+  // 2. Sync to Firestore using setDoc with merge: true (creates doc if missing, updates if exists)
+  if (isFirebaseConfigured && db) {
+    try {
+      const docRef = doc(db, 'projects', id);
+      await setDoc(
+        docRef,
+        {
+          ...projectData,
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+    } catch (err) {
+      console.warn('Firestore updateProject sync error (saved locally):', err);
+    }
+  }
+
   return { id, ...projectData };
 };
 
 export const deleteProject = async (id) => {
-  if (isFirebaseConfigured && db) {
-    await deleteDoc(doc(db, 'projects', id));
-  }
   const current = getLocal(STORAGE_KEYS.PROJECTS, defaultProjects);
   const updated = current.filter((p) => p.id !== id);
   setLocal(STORAGE_KEYS.PROJECTS, updated);
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await deleteDoc(doc(db, 'projects', id));
+    } catch (err) {
+      console.warn('Firestore deleteProject sync error:', err);
+    }
+  }
   return id;
 };
 
@@ -387,12 +413,21 @@ export const deleteMessage = async (id) => {
 // ----------------------------------------------------
 export const uploadFile = async (file, path = 'resumes/dhiraj_kumar_resume.pdf') => {
   if (isFirebaseConfigured && storage) {
-    const storageRef = ref(storage, path);
-    await uploadBytes(storageRef, file);
-    const downloadUrl = await getDownloadURL(storageRef);
-    return downloadUrl;
+    try {
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, file);
+      const downloadUrl = await getDownloadURL(storageRef);
+      return downloadUrl;
+    } catch (err) {
+      console.warn('Firebase Storage upload failed, converting to Data URL fallback:', err);
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    }
   } else {
-    // Generate an in-memory base64 Data URL for testing
+    // Generate an in-memory base64 Data URL
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result);
@@ -433,43 +468,68 @@ export const subscribeToCertificates = (callback) => {
 };
 
 export const createCertificate = async (certData) => {
+  const current = getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates);
+  let finalId = `cert-${Date.now()}`;
+
   if (isFirebaseConfigured && db) {
-    const docRef = await addDoc(collection(db, 'certificates'), {
-      ...certData,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-    return { id: docRef.id, ...certData };
-  } else {
-    const current = getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates);
-    const newCert = { id: `cert-${Date.now()}`, ...certData };
-    const updated = [newCert, ...current];
-    setLocal(STORAGE_KEYS.CERTIFICATES, updated);
-    return newCert;
+    try {
+      const docRef = await addDoc(collection(db, 'certificates'), {
+        ...certData,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      finalId = docRef.id;
+    } catch (err) {
+      console.warn('Firestore createCertificate sync error (using local id):', err);
+    }
   }
+
+  const newCert = { id: finalId, ...certData };
+  const updated = [newCert, ...current];
+  setLocal(STORAGE_KEYS.CERTIFICATES, updated);
+  return newCert;
 };
 
 export const updateCertificate = async (id, certData) => {
-  if (isFirebaseConfigured && db) {
-    const docRef = doc(db, 'certificates', id);
-    await updateDoc(docRef, {
-      ...certData,
-      updatedAt: serverTimestamp()
-    });
-  }
   const current = getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates);
-  const updated = current.map((c) => (c.id === id ? { ...c, ...certData } : c));
+  const exists = current.some((c) => c.id === id);
+  const updated = exists
+    ? current.map((c) => (c.id === id ? { ...c, ...certData } : c))
+    : [{ id, ...certData }, ...current];
   setLocal(STORAGE_KEYS.CERTIFICATES, updated);
+
+  if (isFirebaseConfigured && db) {
+    try {
+      const docRef = doc(db, 'certificates', id);
+      await setDoc(
+        docRef,
+        {
+          ...certData,
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+    } catch (err) {
+      console.warn('Firestore updateCertificate sync error (saved locally):', err);
+    }
+  }
+
   return { id, ...certData };
 };
 
 export const deleteCertificate = async (id) => {
-  if (isFirebaseConfigured && db) {
-    await deleteDoc(doc(db, 'certificates', id));
-  }
   const current = getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates);
   const updated = current.filter((c) => c.id !== id);
   setLocal(STORAGE_KEYS.CERTIFICATES, updated);
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await deleteDoc(doc(db, 'certificates', id));
+    } catch (err) {
+      console.warn('Firestore deleteCertificate sync error:', err);
+    }
+  }
+
   return id;
 };
 
