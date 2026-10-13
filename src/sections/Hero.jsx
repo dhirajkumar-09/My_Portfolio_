@@ -14,8 +14,8 @@ import {
   Star
 } from 'lucide-react';
 import { Github, Linkedin } from '../components/SocialIcons';
+import ParticleMorph from '../components/ParticleMorph';
 import IoTScene3D from '../components/IoTScene3D';
-import TiltCard from '../components/TiltCard';
 import { fetchGitHubProfile, fetchRepoDetails } from '../services/githubService';
 
 export default function Hero({ profile }) {
@@ -30,6 +30,7 @@ export default function Hero({ profile }) {
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
   const [currentText, setCurrentText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeVisual, setActiveVisual] = useState('morph'); // 'morph' (default) or 'globe'
 
   // Live GitHub telemetry state
   const [gitData, setGitData] = useState({
@@ -269,39 +270,69 @@ export default function Hero({ profile }) {
                       <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block shadow-sm" />
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs font-mono text-slate-600 dark:text-slate-400">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                      </span>
-                      <span>Patna Station [25.6°N, 85.1°E]</span>
+                    {/* Mode Toggle Pills */}
+                    <div className="flex items-center gap-1 p-0.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono">
+                      <button
+                        onClick={() => setActiveVisual('morph')}
+                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                          activeVisual === 'morph'
+                            ? 'bg-emerald-500/25 text-emerald-400 font-bold border border-emerald-500/40 shadow-sm'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        ● 3D Morph
+                      </button>
+                      <button
+                        onClick={() => setActiveVisual('globe')}
+                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                          activeVisual === 'globe'
+                            ? 'bg-cyan-500/25 text-cyan-400 font-bold border border-cyan-500/40 shadow-sm'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Earth 3D
+                      </button>
                     </div>
                   </div>
 
-                  {/* 3D Cyber Earth Globe Showcase */}
-                  <div className="rounded-2xl overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border border-slate-800/80 relative shadow-inner">
-                    <IoTScene3D />
+                  {/* 3D Visual Showcase Container */}
+                  <div className="rounded-2xl overflow-hidden bg-[#070c10] border border-emerald-500/25 relative shadow-inner h-[380px] sm:h-[400px]">
+                    {activeVisual === 'morph' ? (
+                      <ParticleMorph
+                        count={640}
+                        colors={{
+                          primary: '#22ff99',
+                          highlight: '#eafff4',
+                          glow: 'rgba(34, 255, 153, 0.12)'
+                        }}
+                        holdTime={2500}
+                        morphTime={1500}
+                        shapes={['SPHERE', 'CUBE', 'TORUS', 'DOUBLE HELIX']}
+                      />
+                    ) : (
+                      <IoTScene3D />
+                    )}
                   </div>
 
                   {/* Technical Feature Cards */}
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400">
+                      <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                         <Radio className="w-4 h-4 animate-pulse" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-slate-900 dark:text-white">IoT Systems</p>
-                        <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">Sensors &amp; Telemetry</p>
+                        <p className="text-xs font-bold text-slate-900 dark:text-white">640 3D Particles</p>
+                        <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">Smoothstep Morph</p>
                       </div>
                     </div>
 
                     <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                      <div className="p-2.5 rounded-xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400">
                         <Code2 className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-slate-900 dark:text-white">Full-Stack</p>
-                        <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">React &amp; Cloud DB</p>
+                        <p className="text-xs font-bold text-slate-900 dark:text-white">Zero Lib Math</p>
+                        <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400">Pure Canvas 60FPS</p>
                       </div>
                     </div>
                   </div>
