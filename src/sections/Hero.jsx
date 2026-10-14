@@ -14,7 +14,7 @@ import {
   Star
 } from 'lucide-react';
 import { Github, Linkedin } from '../components/SocialIcons';
-import CyberCore3D from '../components/CyberCore3D';
+import DevCore3D from '../components/DevCore3D';
 import { fetchGitHubProfile, fetchRepoDetails } from '../services/githubService';
 
 export default function Hero({ profile }) {
@@ -248,26 +248,20 @@ export default function Hero({ profile }) {
             </motion.div>
           </div>
 
-          {/* Right Column: Interactive 3D Cyber Core Centerpiece */}
-          <div className="lg:col-span-5 flex justify-center">
+          {/* Right Column: Seamless 3D Software Architecture Core */}
+          <div className="lg:col-span-5 flex items-center justify-center relative min-h-[460px] sm:min-h-[520px]">
+            {/* Ambient Multi-Layer Dynamic Glow Background (Directly on page) */}
+            <div className="absolute w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-gradient-to-tr from-cyan-500/25 via-sky-500/15 to-emerald-500/20 blur-3xl pointer-events-none animate-pulse-slow" />
+            <div className="absolute w-56 sm:w-72 h-56 sm:h-72 rounded-full bg-cyan-400/10 blur-2xl pointer-events-none" />
+
+            {/* Direct Seamless 3D Canvas */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="w-full max-w-md"
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative w-full max-w-[480px] h-[460px] sm:h-[520px] flex items-center justify-center"
             >
-              <div className="relative rounded-3xl">
-                {/* Outer dynamic ambient blur glow */}
-                <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/30 via-sky-600/20 to-emerald-500/30 rounded-3xl blur-2xl opacity-75 animate-pulse-slow pointer-events-none" />
-
-                {/* Main Glass Housing */}
-                <div className="relative rounded-3xl bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 backdrop-blur-2xl p-3 sm:p-4 shadow-2xl">
-                  {/* 3D Scene Viewport */}
-                  <div className="rounded-2xl overflow-hidden bg-[#050b14] border border-cyan-500/25 relative shadow-inner h-[460px] sm:h-[500px]">
-                    <CyberCore3D />
-                  </div>
-                </div>
-              </div>
+              <DevCore3D />
             </motion.div>
           </div>
 
