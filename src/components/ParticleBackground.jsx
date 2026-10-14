@@ -52,12 +52,12 @@ export default function ParticleBackground() {
         this.size = Math.random() * 2 + 1;
         this.speedX = (Math.random() - 0.5) * 0.7;
         this.speedY = (Math.random() - 0.5) * 0.7;
-        // Accent colors: Cyan or Emerald or Blue
+        // Accent colors: Cyan, Amber/Gold, Emerald
         const colors = isDark
-          ? ['rgba(56, 189, 248, ', 'rgba(6, 182, 212, ', 'rgba(16, 185, 129, ']
-          : ['rgba(2, 132, 199, ', 'rgba(14, 165, 233, ', 'rgba(5, 150, 105, '];
+          ? ['rgba(56, 189, 248, ', 'rgba(245, 158, 11, ', 'rgba(16, 185, 129, ']
+          : ['rgba(2, 132, 199, ', 'rgba(217, 119, 6, ', 'rgba(5, 150, 105, '];
         this.colorPrefix = colors[Math.floor(Math.random() * colors.length)];
-        this.baseAlpha = Math.random() * 0.5 + 0.25;
+        this.baseAlpha = Math.random() * 0.45 + 0.2;
       }
 
       update() {

@@ -252,17 +252,30 @@ export default function Hero({ profile }) {
           </div>
         </motion.div>
 
-        {/* Ambient Interactive Hint Badge */}
+        {/* Executive Highlights Ribbon */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="pt-2"
+          className="pt-2 max-w-2xl mx-auto"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 text-[11px] font-mono">
-            <Coins className="w-3.5 h-3.5 text-amber-400 animate-bounce" />
-            <span>Move or hover your cursor anywhere across the screen for Currency Rain</span>
-            <span className="text-emerald-400 font-bold">₹ $ € ₿ ¥</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 backdrop-blur-xl shadow-lg">
+            <div className="text-center">
+              <div className="text-base sm:text-lg font-bold font-mono text-cyan-600 dark:text-cyan-400">10+</div>
+              <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider">Projects Built</div>
+            </div>
+            <div className="text-center">
+              <div className="text-base sm:text-lg font-bold font-mono text-emerald-600 dark:text-emerald-400">14+</div>
+              <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tech Stack</div>
+            </div>
+            <div className="text-center">
+              <div className="text-base sm:text-lg font-bold font-mono text-amber-600 dark:text-amber-400">150+</div>
+              <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider">DSA Solved</div>
+            </div>
+            <div className="text-center">
+              <div className="text-base sm:text-lg font-bold font-mono text-indigo-600 dark:text-indigo-400">Top 1%</div>
+              <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider">Commitment</div>
+            </div>
           </div>
         </motion.div>
 
