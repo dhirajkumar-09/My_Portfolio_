@@ -11,22 +11,22 @@ export default function Preloader({ profile, onComplete }) {
   const role = profile?.roles?.[0] || profile?.title || 'IoT & Full-Stack Engineer';
 
   const greetings = [
-    { text: 'नमस्ते 🙏', sub: 'Namaste • Warmest Greetings', lang: 'Hindi' },
-    { text: 'Namaste', sub: 'Welcome to my digital space', lang: 'Indian Culture' },
-    { text: 'Welcome', sub: 'Explore Hardware & Web Systems', lang: 'Global' },
-    { text: name, sub: role, lang: 'Portfolio' }
+    { text: 'नमस्ते 🙏', sub: 'Namaste • Warmest Greetings from India', lang: 'Hindi' },
+    { text: 'Welcome ✨', sub: 'To My Professional Space & Portfolio', lang: 'Global' },
+    { text: 'Business & Tech 💼', sub: 'Bridging Software Systems with Strategic Management', lang: 'Vision' },
+    { text: name, sub: role, lang: 'Executive Portfolio' }
   ];
 
   useEffect(() => {
     // Disable scrolling during intro
     document.body.style.overflow = 'hidden';
 
-    // Cycle through greetings every 600ms
+    // Cycle through greetings gracefully every 1350ms so user can comfortably read each
     const greetingInterval = setInterval(() => {
       setIndex((prev) => (prev < greetings.length - 1 ? prev + 1 : prev));
-    }, 600);
+    }, 1350);
 
-    // Smooth counter from 0 to 100%
+    // Smooth counter from 0 to 100% (takes ~5.2 seconds in sync with the slower greetings)
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -36,12 +36,12 @@ export default function Preloader({ profile, onComplete }) {
             setDone(true);
             document.body.style.overflow = '';
             if (onComplete) onComplete();
-          }, 400);
+          }, 500);
           return 100;
         }
-        return prev + 2;
+        return prev + 1;
       });
-    }, 45);
+    }, 50);
 
     return () => {
       clearInterval(greetingInterval);
@@ -95,11 +95,11 @@ export default function Preloader({ profile, onComplete }) {
                 initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: -24, filter: 'blur(8px)' }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-4"
               >
                 {/* Cultural / Modern Greeting Heading */}
-                <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-300">
+                <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-white to-emerald-300">
                   {greetings[index].text}
                 </h1>
 

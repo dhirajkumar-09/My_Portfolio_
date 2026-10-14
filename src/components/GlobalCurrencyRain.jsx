@@ -38,12 +38,14 @@ export default function GlobalCurrencyRain() {
 
       const curr = CURRENCIES[Math.floor(Math.random() * CURRENCIES.length)];
       const depth = 0.45 + Math.random() * 0.55; // Depth factor: 0.45 to 1.0
-      const size = Math.floor(15 + depth * 19); // Size 15px to 34px
-      const vy = 5 + depth * 8.5 + (fromCursor ? Math.random() * 3 : 0); // Downward velocity
-      const vx = (Math.random() - 0.5) * 1.6; // Slight natural wind drift
+      const size = Math.floor(16 + depth * 18); // Size 16px to 34px
+      
+      // Slower, graceful floating rain speed so the animation is clearly noticeable
+      const vy = 1.6 + depth * 2.2 + (fromCursor ? Math.random() * 0.8 : 0);
+      const vx = (Math.random() - 0.5) * 1.2; // Gentle horizontal wind drift
 
-      let startX = customX !== null ? customX + (Math.random() - 0.5) * 50 : Math.random() * width;
-      let startY = customY !== null ? customY + (Math.random() - 0.5) * 20 : -35;
+      let startX = customX !== null ? customX + (Math.random() - 0.5) * 45 : Math.random() * width;
+      let startY = customY !== null ? customY + (Math.random() - 0.5) * 15 : -35;
 
       particlesRef.current.push({
         x: startX,
@@ -51,14 +53,16 @@ export default function GlobalCurrencyRain() {
         vx,
         vy,
         wobble: Math.random() * Math.PI * 2,
-        wobbleSpeed: 0.04 + Math.random() * 0.05,
+        wobbleSpeed: 0.03 + Math.random() * 0.035,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.03,
         size,
         depth,
         symbol: curr.symbol,
         color: curr.color,
         glow: curr.glow,
-        trailLength: 22 + depth * 35,
-        alpha: 0.65 + depth * 0.35
+        trailLength: 26 + depth * 38,
+        alpha: 0.7 + depth * 0.3
       });
     };
 
@@ -230,16 +234,23 @@ export default function GlobalCurrencyRain() {
         ctx.lineWidth = 1.6 * p.depth;
         ctx.stroke();
 
-        // 2. Draw currency glyph
+        // 2. Draw currency glyph with subtle coin tumbling rotation
+        p.rotation += p.rotationSpeed;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+
         ctx.font = `bold ${p.size}px "Inter", sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
         ctx.shadowColor = p.color;
-        ctx.shadowBlur = 9 * p.depth;
+        ctx.shadowBlur = 12 * p.depth;
 
         ctx.fillStyle = p.color;
-        ctx.fillText(p.symbol, p.x, p.y);
+        ctx.fillText(p.symbol, 0, 0);
+
+        ctx.restore();
 
         ctx.restore();
       }
