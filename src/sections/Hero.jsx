@@ -14,8 +14,7 @@ import {
   Star
 } from 'lucide-react';
 import { Github, Linkedin } from '../components/SocialIcons';
-import ParticleMorph from '../components/ParticleMorph';
-import IoTScene3D from '../components/IoTScene3D';
+import CyberTerminalHUD from '../components/CyberTerminalHUD';
 import { fetchGitHubProfile, fetchRepoDetails } from '../services/githubService';
 
 export default function Hero({ profile }) {
@@ -30,7 +29,6 @@ export default function Hero({ profile }) {
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
   const [currentText, setCurrentText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const [activeVisual, setActiveVisual] = useState('morph'); // 'morph' (default) or 'globe'
 
   // Live GitHub telemetry state
   const [gitData, setGitData] = useState({
@@ -250,7 +248,7 @@ export default function Hero({ profile }) {
             </motion.div>
           </div>
 
-          {/* Right Column: Holographic 3D IoT Centerpiece Card */}
+          {/* Right Column: Interactive Cyber IoT Terminal HUD */}
           <div className="lg:col-span-5 flex justify-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -263,60 +261,10 @@ export default function Hero({ profile }) {
                 <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/30 via-sky-600/20 to-emerald-500/30 rounded-3xl blur-xl opacity-60 animate-pulse-slow pointer-events-none" />
 
                 {/* Main Glass Housing */}
-                <div className="relative rounded-3xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-700/80 backdrop-blur-2xl p-5 sm:p-6 shadow-2xl space-y-4">
-                  
-                  {/* Console Header Bar */}
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-                    <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-rose-500/80 inline-block shadow-sm" />
-                      <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block shadow-sm" />
-                      <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block shadow-sm" />
-                    </div>
-
-                    {/* Mode Toggle Pills */}
-                    <div className="flex items-center gap-1 p-0.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono">
-                      <button
-                        onClick={() => setActiveVisual('morph')}
-                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
-                          activeVisual === 'morph'
-                            ? 'bg-emerald-500/25 text-emerald-400 font-bold border border-emerald-500/40 shadow-sm'
-                            : 'text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        ● 3D Morph
-                      </button>
-                      <button
-                        onClick={() => setActiveVisual('globe')}
-                        className={`px-2.5 py-1 rounded-md transition-all cursor-pointer ${
-                          activeVisual === 'globe'
-                            ? 'bg-cyan-500/25 text-cyan-400 font-bold border border-cyan-500/40 shadow-sm'
-                            : 'text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        Earth 3D
-                      </button>
-                    </div>
+                <div className="relative rounded-3xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-700/80 backdrop-blur-2xl p-2.5 sm:p-3 shadow-2xl">
+                  <div className="h-[490px] sm:h-[520px]">
+                    <CyberTerminalHUD profile={profile} />
                   </div>
-
-                  {/* 3D Visual Showcase Container */}
-                  <div className="rounded-2xl overflow-hidden bg-[#070c10] border border-emerald-500/25 relative shadow-inner h-[460px] sm:h-[500px]">
-                    {activeVisual === 'morph' ? (
-                      <ParticleMorph
-                        count={640}
-                        colors={{
-                          primary: '#22ff99',
-                          highlight: '#eafff4',
-                          glow: 'rgba(34, 255, 153, 0.12)'
-                        }}
-                        holdTime={2500}
-                        morphTime={1500}
-                        shapes={['SPHERE', 'CUBE', 'TORUS', 'DOUBLE HELIX']}
-                      />
-                    ) : (
-                      <IoTScene3D />
-                    )}
-                  </div>
-
                 </div>
               </div>
             </motion.div>
