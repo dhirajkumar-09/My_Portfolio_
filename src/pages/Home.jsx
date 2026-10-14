@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CustomCursor from '../components/CustomCursor';
 import ParticleBackground from '../components/ParticleBackground';
+import GlobalCurrencyRain from '../components/GlobalCurrencyRain';
 import Preloader from '../components/Preloader';
 import Toast from '../components/Toast';
 
@@ -84,6 +85,9 @@ export default function Home() {
 
       {/* Particle background */}
       <ParticleBackground />
+
+      {/* Global Interactive Currency Rain on Cursor Hover */}
+      <GlobalCurrencyRain />
 
       {/* Interactive desktop cursor glow */}
       <CustomCursor />
