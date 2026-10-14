@@ -11,22 +11,27 @@ export default function Preloader({ profile, onComplete }) {
   const role = profile?.roles?.[0] || profile?.title || 'IoT & Full-Stack Engineer';
 
   const greetings = [
-    { text: 'नमस्ते 🙏', sub: 'Namaste • Warmest Greetings from India', lang: 'Hindi' },
-    { text: 'Welcome ✨', sub: 'To My Professional Space & Portfolio', lang: 'Global' },
-    { text: 'Business & Tech 💼', sub: 'Bridging Software Systems with Strategic Management', lang: 'Vision' },
-    { text: name, sub: role, lang: 'Executive Portfolio' }
+    { text: 'नमस्ते 🙏', sub: 'Namaste', lang: 'Hindi • India' },
+    { text: 'Welcome ✨', sub: 'Welcome', lang: 'English' },
+    { text: 'Bienvenido', sub: 'Welcome in Spanish', lang: 'Español' },
+    { text: 'Bienvenue', sub: 'Welcome in French', lang: 'Français' },
+    { text: 'ようこそ', sub: 'Yōkoso', lang: 'Japanese' },
+    { text: 'Willkommen', sub: 'Welcome in German', lang: 'Deutsch' },
+    { text: 'Benvenuto', sub: 'Welcome in Italian', lang: 'Italiano' },
+    { text: 'أهلاً وسهلاً', sub: 'Ahlan wa Sahlan', lang: 'Arabic' },
+    { text: name, sub: 'Digital Portfolio & Engineering Space', lang: 'Dhiraj Kumar' }
   ];
 
   useEffect(() => {
     // Disable scrolling during intro
     document.body.style.overflow = 'hidden';
 
-    // Cycle through greetings gracefully every 1350ms so user can comfortably read each
+    // Cycle through 8 language greetings gracefully every 650ms
     const greetingInterval = setInterval(() => {
       setIndex((prev) => (prev < greetings.length - 1 ? prev + 1 : prev));
-    }, 1350);
+    }, 650);
 
-    // Smooth counter from 0 to 100% (takes ~5.2 seconds in sync with the slower greetings)
+    // Smooth counter from 0 to 100% in sync (~5.8s total)
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -36,12 +41,12 @@ export default function Preloader({ profile, onComplete }) {
             setDone(true);
             document.body.style.overflow = '';
             if (onComplete) onComplete();
-          }, 500);
+          }, 450);
           return 100;
         }
         return prev + 1;
       });
-    }, 50);
+    }, 55);
 
     return () => {
       clearInterval(greetingInterval);

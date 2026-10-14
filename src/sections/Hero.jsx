@@ -281,20 +281,6 @@ export default function Hero({ profile }) {
           </div>
         </motion.div>
 
-        {/* Ambient Interactive Hint Badge */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="pt-2"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs font-mono shadow-sm">
-            <Coins className="w-3.5 h-3.5 text-amber-400 animate-bounce" />
-            <span>Move or hover your cursor anywhere across the screen for Currency Rain</span>
-            <span className="text-emerald-400 font-bold">₹ $ € ₿ ¥</span>
-          </div>
-        </motion.div>
-
         {/* Animated Scroll Down Indicator */}
         <motion.div
           initial={{ opacity: 0 }}
