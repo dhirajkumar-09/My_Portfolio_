@@ -494,9 +494,40 @@ export default function Admin() {
   };
 
   const updatePillar = (index, field, value) => {
-    const currentPillars = profile.pillars && profile.pillars.length === 3
+    const currentPillars = Array.isArray(profile.pillars)
       ? [...profile.pillars]
-      : [
+      : [...(defaultProfile.pillars || [])];
+    if (!currentPillars[index]) {
+      currentPillars[index] = { title: '', desc: '' };
+    }
+    currentPillars[index] = { ...currentPillars[index], [field]: value };
+    setProfile({ ...profile, pillars: currentPillars });
+  };
+
+  const handleAddPillar = () => {
+    const currentPillars = Array.isArray(profile.pillars)
+      ? [...profile.pillars]
+      : [...(defaultProfile.pillars || [])];
+    currentPillars.push({
+      title: 'New Engineering Focus',
+      desc: 'Describe this technical focus area, core competency, or engineering domain.'
+    });
+    setProfile({ ...profile, pillars: currentPillars });
+  };
+
+  const handleDeletePillar = (index) => {
+    const currentPillars = Array.isArray(profile.pillars)
+      ? [...profile.pillars]
+      : [...(defaultProfile.pillars || [])];
+    const updated = currentPillars.filter((_, i) => i !== index);
+    setProfile({ ...profile, pillars: updated });
+  };
+
+  const handleResetPillars = () => {
+    if (window.confirm('Reset all engineering focus pillars to standard defaults?')) {
+      setProfile({
+        ...profile,
+        pillars: [
           {
             title: 'IoT & Embedded Engineering',
             desc: 'Passionate about integrating microcontrollers, sensor telemetry, and hardware protocols with cloud dashboards for real-time monitoring.'
@@ -509,9 +540,9 @@ export default function Admin() {
             title: 'Data Structures & Algorithms',
             desc: 'Writing optimized algorithms in Python, Java, and C with a disciplined approach to time-space complexity and object-oriented patterns.'
           }
-        ];
-    currentPillars[index] = { ...currentPillars[index], [field]: value };
-    setProfile({ ...profile, pillars: currentPillars });
+        ]
+      });
+    }
   };
 
   const handleResumeFileChange = async (e) => {
@@ -1559,70 +1590,107 @@ export default function Admin() {
                   </div>
                 </div>
 
-                {/* 3 Pillars Customization */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-semibold">
-                    Right Column: 3 Engineering Focus Pillars
-                  </h4>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    {/* Pillar 1 */}
-                    <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
-                      <span className="text-[11px] font-mono font-semibold text-cyan-400">Pillar 1 (IoT)</span>
-                      <input
-                        type="text"
-                        value={profile.pillars?.[0]?.title || 'IoT & Embedded Engineering'}
-                        onChange={(e) => updatePillar(0, 'title', e.target.value)}
-                        placeholder="Pillar 1 Title"
-                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400"
-                      />
-                      <textarea
-                        rows={3}
-                        value={profile.pillars?.[0]?.desc || 'Passionate about integrating microcontrollers, sensor telemetry, and hardware protocols with cloud dashboards for real-time monitoring.'}
-                        onChange={(e) => updatePillar(0, 'desc', e.target.value)}
-                        placeholder="Pillar 1 Description"
-                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 resize-none"
-                      />
+                {/* Engineering Focus Pillars Customization */}
+                <div className="space-y-4 pt-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                    <div>
+                      <h4 className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-semibold flex items-center gap-2">
+                        <span>Engineering Focus Pillars</span>
+                        <span className="px-2 py-0.5 text-[10px] rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                          {(Array.isArray(profile.pillars) ? profile.pillars : (defaultProfile.pillars || [])).length} Active
+                        </span>
+                      </h4>
+                      <p className="text-[11px] font-mono text-slate-500 mt-0.5">
+                        Interactive cards displayed in the About section right column. Add, edit, or delete any pillar.
+                      </p>
                     </div>
 
-                    {/* Pillar 2 */}
-                    <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
-                      <span className="text-[11px] font-mono font-semibold text-blue-400">Pillar 2 (Web)</span>
-                      <input
-                        type="text"
-                        value={profile.pillars?.[1]?.title || 'Modern Full-Stack Web'}
-                        onChange={(e) => updatePillar(1, 'title', e.target.value)}
-                        placeholder="Pillar 2 Title"
-                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400"
-                      />
-                      <textarea
-                        rows={3}
-                        value={profile.pillars?.[1]?.desc || 'Crafting responsive, high-performance web applications using React, modern JavaScript, Tailwind CSS, and Firebase backend services.'}
-                        onChange={(e) => updatePillar(1, 'desc', e.target.value)}
-                        placeholder="Pillar 2 Description"
-                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 resize-none"
-                      />
-                    </div>
-
-                    {/* Pillar 3 */}
-                    <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
-                      <span className="text-[11px] font-mono font-semibold text-emerald-400">Pillar 3 (DSA)</span>
-                      <input
-                        type="text"
-                        value={profile.pillars?.[2]?.title || 'Data Structures & Algorithms'}
-                        onChange={(e) => updatePillar(2, 'title', e.target.value)}
-                        placeholder="Pillar 3 Title"
-                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400"
-                      />
-                      <textarea
-                        rows={3}
-                        value={profile.pillars?.[2]?.desc || 'Writing optimized algorithms in Python, Java, and C with a disciplined approach to time-space complexity and object-oriented patterns.'}
-                        onChange={(e) => updatePillar(2, 'desc', e.target.value)}
-                        placeholder="Pillar 3 Description"
-                        className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 resize-none"
-                      />
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleResetPillars}
+                        className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+                        title="Restore 3 standard default pillars"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Reset Defaults</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAddPillar}
+                        className="px-3.5 py-1.5 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30 text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add Pillar</span>
+                      </button>
                     </div>
                   </div>
+
+                  {/* Dynamic Pillars List */}
+                  {((Array.isArray(profile.pillars) ? profile.pillars : (defaultProfile.pillars || [])).length === 0) ? (
+                    <div className="p-6 rounded-xl bg-slate-950/60 border border-dashed border-slate-800 text-center space-y-3">
+                      <p className="text-xs font-mono text-slate-400">
+                        No engineering pillars configured. The About section will fallback to defaults until you add one.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleAddPillar}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30 text-xs font-mono font-medium transition-colors cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Create First Pillar</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                      {(Array.isArray(profile.pillars) ? profile.pillars : (defaultProfile.pillars || [])).map((pillar, idx) => (
+                        <div
+                          key={idx}
+                          className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition-all space-y-2.5 relative group"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/30 text-cyan-300">
+                              Pillar #{idx + 1}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeletePillar(idx)}
+                              className="text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 p-1.5 rounded-md transition-colors cursor-pointer"
+                              title={`Delete Pillar #${idx + 1}`}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-mono text-slate-400 mb-1">
+                              Title
+                            </label>
+                            <input
+                              type="text"
+                              value={pillar.title || ''}
+                              onChange={(e) => updatePillar(idx, 'title', e.target.value)}
+                              placeholder="e.g. Cloud & Distributed Systems"
+                              className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-mono text-slate-400 mb-1">
+                              Description
+                            </label>
+                            <textarea
+                              rows={3}
+                              value={pillar.desc || ''}
+                              onChange={(e) => updatePillar(idx, 'desc', e.target.value)}
+                              placeholder="Describe this engineering focus area..."
+                              className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 resize-none font-mono"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

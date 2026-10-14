@@ -13,24 +13,27 @@ import {
 } from 'lucide-react';
 import SectionHeading from '../components/SectionHeading';
 
+const PILLAR_STYLES = [
+  { icon: Cpu, gradient: 'from-cyan-500 to-blue-500' },
+  { icon: Layers, gradient: 'from-blue-500 to-indigo-500' },
+  { icon: Sparkles, gradient: 'from-emerald-500 to-teal-500' },
+  { icon: Code2, gradient: 'from-violet-500 to-purple-500' },
+  { icon: Award, gradient: 'from-amber-500 to-orange-500' },
+  { icon: FolderGit2, gradient: 'from-rose-500 to-pink-500' }
+];
+
 const DEFAULT_PILLARS = [
   {
     title: 'IoT & Embedded Engineering',
-    desc: 'Passionate about integrating microcontrollers, sensor telemetry, and hardware protocols with cloud dashboards for real-time monitoring.',
-    icon: Cpu,
-    gradient: 'from-cyan-500 to-blue-500'
+    desc: 'Passionate about integrating microcontrollers, sensor telemetry, and hardware protocols with cloud dashboards for real-time monitoring.'
   },
   {
     title: 'Modern Full-Stack Web',
-    desc: 'Crafting responsive, high-performance web applications using React, modern JavaScript, Tailwind CSS, and Firebase backend services.',
-    icon: Layers,
-    gradient: 'from-blue-500 to-indigo-500'
+    desc: 'Crafting responsive, high-performance web applications using React, modern JavaScript, Tailwind CSS, and Firebase backend services.'
   },
   {
     title: 'Data Structures & Algorithms',
-    desc: 'Writing optimized algorithms in Python, Java, and C with a disciplined approach to time-space complexity and object-oriented patterns.',
-    icon: Sparkles,
-    gradient: 'from-emerald-500 to-teal-500'
+    desc: 'Writing optimized algorithms in Python, Java, and C with a disciplined approach to time-space complexity and object-oriented patterns.'
   }
 ];
 
@@ -63,14 +66,17 @@ export default function About({ profile }) {
   ];
 
   // Map dynamic pillars or fallback to defaults
-  const activePillars = [0, 1, 2].map((idx) => {
-    const custom = profile?.pillars?.[idx];
-    const def = DEFAULT_PILLARS[idx];
+  const userPillars = Array.isArray(profile?.pillars)
+    ? profile.pillars
+    : DEFAULT_PILLARS;
+
+  const activePillars = userPillars.map((pillar, idx) => {
+    const style = PILLAR_STYLES[idx % PILLAR_STYLES.length];
     return {
-      title: custom?.title || def.title,
-      desc: custom?.desc || def.desc,
-      icon: def.icon,
-      gradient: def.gradient
+      title: pillar.title || 'Engineering Focus',
+      desc: pillar.desc || '',
+      icon: style.icon,
+      gradient: style.gradient
     };
   });
 
