@@ -11,27 +11,22 @@ export default function Preloader({ profile, onComplete }) {
   const role = profile?.roles?.[0] || profile?.title || 'IoT & Full-Stack Engineer';
 
   const greetings = [
-    { text: 'नमस्ते 🙏', sub: 'Namaste', lang: 'Hindi • India' },
-    { text: 'Welcome ✨', sub: 'Welcome', lang: 'English' },
-    { text: 'Bienvenido', sub: 'Welcome in Spanish', lang: 'Español' },
-    { text: 'Bienvenue', sub: 'Welcome in French', lang: 'Français' },
-    { text: 'ようこそ', sub: 'Yōkoso', lang: 'Japanese' },
-    { text: 'Willkommen', sub: 'Welcome in German', lang: 'Deutsch' },
-    { text: 'Benvenuto', sub: 'Welcome in Italian', lang: 'Italiano' },
-    { text: 'أهلاً وسهلاً', sub: 'Ahlan wa Sahlan', lang: 'Arabic' },
-    { text: name, sub: 'Digital Portfolio & Engineering Space', lang: 'Dhiraj Kumar' }
+    { text: 'नमस्ते 🙏', sub: 'Namaste • Warmest Greetings', lang: 'Hindi' },
+    { text: 'Namaste', sub: 'Welcome to my digital space', lang: 'Indian Culture' },
+    { text: 'Welcome', sub: 'Explore Hardware & Web Systems', lang: 'Global' },
+    { text: name, sub: role, lang: 'Portfolio' }
   ];
 
   useEffect(() => {
     // Disable scrolling during intro
     document.body.style.overflow = 'hidden';
 
-    // Cycle through 8 language greetings gracefully every 650ms
+    // Cycle through greetings every 600ms
     const greetingInterval = setInterval(() => {
       setIndex((prev) => (prev < greetings.length - 1 ? prev + 1 : prev));
-    }, 650);
+    }, 600);
 
-    // Smooth counter from 0 to 100% in sync (~5.8s total)
+    // Smooth counter from 0 to 100%
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -41,12 +36,12 @@ export default function Preloader({ profile, onComplete }) {
             setDone(true);
             document.body.style.overflow = '';
             if (onComplete) onComplete();
-          }, 450);
+          }, 400);
           return 100;
         }
-        return prev + 1;
+        return prev + 2;
       });
-    }, 55);
+    }, 45);
 
     return () => {
       clearInterval(greetingInterval);
@@ -100,11 +95,11 @@ export default function Preloader({ profile, onComplete }) {
                 initial={{ opacity: 0, y: 24, filter: 'blur(8px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: -24, filter: 'blur(8px)' }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 className="space-y-4"
               >
                 {/* Cultural / Modern Greeting Heading */}
-                <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-white to-emerald-300">
+                <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-300">
                   {greetings[index].text}
                 </h1>
 

@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { Github, Linkedin } from '../components/SocialIcons';
 import SectionHeading from '../components/SectionHeading';
-import { sendContactMessage } from '../services/portfolioService';
 import { sendNotificationEmail } from '../services/emailService';
 
 export default function Contact({ profile, onToast }) {
@@ -79,13 +78,21 @@ export default function Contact({ profile, onToast }) {
     setStatus({ type: '', message: '' });
 
     try {
-      // Step A: Save message to Firestore 'messages' collection
-      await sendContactMessage({
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        subject: formData.subject.trim() || 'Portfolio Contact',
-        message: formData.message.trim()
-      });
+      // Step A: Save message to local storage history
+      try {
+        const existing = JSON.parse(localStorage.getItem('dhiraj_portfolio_messages') || '[]');
+        existing.unshift({
+          id: `msg-${Date.now()}`,
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject.trim() || 'Portfolio Contact',
+          message: formData.message.trim(),
+          createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('dhiraj_portfolio_messages', JSON.stringify(existing.slice(0, 50)));
+      } catch (cacheErr) {
+        console.warn('Local message cache error:', cacheErr);
+      }
 
       // Step B: Send email notification to dhirajku00021@gmail.com
       await sendNotificationEmail({

@@ -28,8 +28,8 @@ const DEFAULT_PILLARS = [
     desc: 'Passionate about integrating microcontrollers, sensor telemetry, and hardware protocols with cloud dashboards for real-time monitoring.'
   },
   {
-    title: 'Modern Full-Stack Web',
-    desc: 'Crafting responsive, high-performance web applications using React, modern JavaScript, Tailwind CSS, and Firebase backend services.'
+    title: 'Modern Full-Stack Web Architecture',
+    desc: 'Crafting responsive, high-performance web applications using React, modern JavaScript, Tailwind CSS, and scalable cloud architectures.'
   },
   {
     title: 'Data Structures & Algorithms',

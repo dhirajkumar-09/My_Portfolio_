@@ -102,10 +102,9 @@ export default function Hero({ profile }) {
       id="hero"
       className="relative min-h-[92vh] flex items-center justify-center pt-28 pb-20 overflow-hidden transition-colors duration-300"
     >
-      {/* Ambient multi-layer luxury glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[600px] bg-gradient-to-tr from-amber-500/15 via-emerald-500/12 to-yellow-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-slow" />
-      <div className="absolute top-24 right-1/4 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-20 left-1/4 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Ambient gradient orbs */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-cyan-500/15 via-blue-600/10 to-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-20 right-10 w-72 h-72 bg-cyan-400/10 rounded-full blur-2xl pointer-events-none" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full text-center space-y-7">
         
@@ -114,17 +113,14 @@ export default function Hero({ profile }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-xs font-mono font-medium bg-slate-900/90 dark:bg-slate-950/90 border border-amber-500/30 text-amber-200 shadow-xl shadow-amber-500/5 backdrop-blur-xl"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono font-medium bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 shadow-sm backdrop-blur-md"
         >
-          <span className="relative flex h-2.5 w-2.5">
+          <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span className="text-slate-300">
-            {profile?.college || 'Bakhtiyarpur College of Engineering, Patna'}
-          </span>
-          <span className="text-amber-400/50">&bull;</span>
-          <span className="text-amber-300 font-semibold">
+          <span>
+            {profile?.college || 'Bakhtiyarpur College of Engineering, Patna'} &bull;{' '}
             {profile?.year || '2nd Year Student'}
           </span>
         </motion.div>
@@ -138,7 +134,7 @@ export default function Hero({ profile }) {
         >
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-display font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
             Hi, I'm{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-emerald-300 drop-shadow-[0_4px_24px_rgba(251,191,36,0.2)]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-emerald-400 to-cyan-400">
               {profile?.name || 'Dhiraj Kumar'}
             </span>
           </h1>
@@ -146,13 +142,11 @@ export default function Hero({ profile }) {
           {/* Typing role line */}
           <div className="h-10 flex items-center justify-center">
             <span className="text-xl sm:text-2xl font-mono font-semibold text-slate-800 dark:text-slate-300">
-              <span className="text-slate-400">
-                {profile?.typingPrefix !== undefined ? profile.typingPrefix : '> I am a'}{' '}
-              </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-300 to-emerald-400 font-bold underline decoration-amber-500/40 decoration-2 underline-offset-8">
+              {profile?.typingPrefix !== undefined ? profile.typingPrefix : '> I am a'}{' '}
+              <span className="text-amber-500 dark:text-amber-400 underline decoration-amber-500/40 decoration-2 underline-offset-4">
                 {currentText}
               </span>
-              <span className="inline-block w-2.5 h-6 ml-1.5 bg-gradient-to-b from-amber-400 to-emerald-400 shadow-[0_0_12px_#fbbf24] animate-pulse align-middle" />
+              <span className="inline-block w-2.5 h-6 ml-1 bg-amber-400 animate-pulse align-middle" />
             </span>
           </div>
         </motion.div>
@@ -162,7 +156,7 @@ export default function Hero({ profile }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 font-sans max-w-2xl leading-relaxed mx-auto font-normal"
+          className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-sans max-w-2xl leading-relaxed mx-auto"
         >
           {profile?.tagline ||
             'Bridging scalable software architecture with strategic business management, financial systems, and high-impact product operations.'}
@@ -177,7 +171,7 @@ export default function Hero({ profile }) {
         >
           <button
             onClick={() => scrollTo('projects')}
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm text-slate-950 bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-400 hover:from-amber-300 hover:to-emerald-300 shadow-[0_10px_25px_-5px_rgba(245,158,11,0.4)] hover:shadow-[0_15px_30px_-5px_rgba(16,185,129,0.5)] transition-all transform hover:-translate-y-0.5 cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-slate-950 bg-gradient-to-r from-amber-400 via-emerald-400 to-cyan-400 hover:from-amber-300 hover:to-emerald-300 shadow-glow-cyan/50 hover:shadow-glow-cyan transition-all transform hover:-translate-y-0.5 cursor-pointer"
           >
             <span>View Projects</span>
             <ArrowRight className="w-4 h-4" />
@@ -188,42 +182,19 @@ export default function Hero({ profile }) {
             download="Dhiraj_Kumar_Resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-amber-200 bg-slate-900/80 dark:bg-slate-900/90 hover:bg-slate-800 border border-amber-500/30 hover:border-amber-400/60 transition-all transform hover:-translate-y-0.5 shadow-md"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700 transition-all transform hover:-translate-y-0.5 shadow-sm"
           >
-            <Download className="w-4 h-4 text-amber-400" />
+            <Download className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             <span>Download Resume</span>
           </a>
 
           <button
             onClick={() => scrollTo('contact')}
-            className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl font-semibold text-sm text-slate-300 hover:text-emerald-300 bg-slate-900/40 hover:bg-emerald-500/10 border border-slate-800 hover:border-emerald-500/40 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl font-semibold text-sm text-slate-700 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-slate-200/50 dark:hover:bg-slate-500/10 transition-all cursor-pointer"
           >
-            <Mail className="w-4 h-4 text-emerald-400" />
+            <Mail className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
             <span>Contact Me</span>
           </button>
-        </motion.div>
-
-        {/* Executive Quick Stats Strip */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35 }}
-          className="flex flex-wrap items-center justify-center gap-3 pt-1"
-        >
-          <div className="px-3.5 py-1.5 rounded-xl bg-slate-900/70 border border-amber-500/20 backdrop-blur-md text-xs font-mono text-slate-300 flex items-center gap-1.5">
-            <Coins className="w-3.5 h-3.5 text-amber-400" />
-            <span>10+ Projects Built</span>
-          </div>
-
-          <div className="px-3.5 py-1.5 rounded-xl bg-slate-900/70 border border-emerald-500/20 backdrop-blur-md text-xs font-mono text-emerald-300 flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-            <span>+38.5% Strategic ROI</span>
-          </div>
-
-          <div className="px-3.5 py-1.5 rounded-xl bg-slate-900/70 border border-slate-700/60 backdrop-blur-md text-xs font-mono text-slate-300 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>FinTech & Systems</span>
-          </div>
         </motion.div>
 
         {/* Social Icons, GitHub Telemetry & Location */}
@@ -231,7 +202,7 @@ export default function Hero({ profile }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="flex flex-wrap items-center justify-center gap-4 pt-3 text-slate-500 dark:text-slate-400 text-sm"
+          className="flex flex-wrap items-center justify-center gap-4 pt-4 text-slate-500 dark:text-slate-400 text-sm"
         >
           <div className="flex items-center gap-2">
             <a
@@ -278,6 +249,20 @@ export default function Hero({ profile }) {
           <div className="flex items-center gap-1.5 text-xs font-mono text-slate-600 dark:text-slate-400">
             <MapPin className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
             <span>{profile?.location || 'Patna, Bihar, India'}</span>
+          </div>
+        </motion.div>
+
+        {/* Ambient Interactive Hint Badge */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="pt-2"
+        >
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 text-[11px] font-mono">
+            <Coins className="w-3.5 h-3.5 text-amber-400 animate-bounce" />
+            <span>Move or hover your cursor anywhere across the screen for Currency Rain</span>
+            <span className="text-emerald-400 font-bold">₹ $ € ₿ ¥</span>
           </div>
         </motion.div>
 

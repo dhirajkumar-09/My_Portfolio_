@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CustomCursor from '../components/CustomCursor';
 import ParticleBackground from '../components/ParticleBackground';
+import GlobalCurrencyRain from '../components/GlobalCurrencyRain';
 import Preloader from '../components/Preloader';
 import Toast from '../components/Toast';
 
@@ -15,75 +16,33 @@ import Certificates from '../sections/Certificates';
 import Contact from '../sections/Contact';
 
 import {
-  subscribeToProfile,
-  subscribeToProjects,
-  subscribeToEducation,
-  subscribeToSkills,
-  subscribeToCertificates
-} from '../services/portfolioService';
-import {
-  defaultProfile,
-  defaultProjects,
-  defaultEducation,
-  defaultSkills,
-  defaultCertificates
-} from '../data/defaultPortfolioData';
+  profileData,
+  projectsData,
+  educationData,
+  skillsData,
+  certificatesData
+} from '../data/portfolioData';
 
 export default function Home() {
-  const [profile, setProfile] = useState(defaultProfile);
-  const [projects, setProjects] = useState(defaultProjects);
-  const [educationList, setEducationList] = useState(defaultEducation);
-  const [skillsList, setSkillsList] = useState(defaultSkills);
-  const [certificates, setCertificates] = useState(defaultCertificates);
-  const [projectsLoading, setProjectsLoading] = useState(false);
+  const [profile] = useState(profileData);
+  const [projects] = useState(projectsData);
+  const [educationList] = useState(educationData);
+  const [skillsList] = useState(skillsData);
+  const [certificates] = useState(certificatesData);
   const [toast, setToast] = useState(null);
-
-  useEffect(() => {
-    // 1. Subscribe to profile
-    const unsubProfile = subscribeToProfile((data) => {
-      if (data) setProfile(data);
-    });
-
-    // 2. Subscribe to projects
-    setProjectsLoading(true);
-    const unsubProjects = subscribeToProjects((data) => {
-      if (Array.isArray(data)) setProjects(data);
-      setProjectsLoading(false);
-    });
-
-    // 3. Subscribe to education
-    const unsubEducation = subscribeToEducation((data) => {
-      if (Array.isArray(data)) setEducationList(data);
-    });
-
-    // 4. Subscribe to skills
-    const unsubSkills = subscribeToSkills((data) => {
-      if (Array.isArray(data)) setSkillsList(data);
-    });
-
-    // 5. Subscribe to certificates
-    const unsubCerts = subscribeToCertificates((data) => {
-      if (Array.isArray(data)) setCertificates(data);
-    });
-
-    return () => {
-      if (typeof unsubProfile === 'function') unsubProfile();
-      if (typeof unsubProjects === 'function') unsubProjects();
-      if (typeof unsubEducation === 'function') unsubEducation();
-      if (typeof unsubSkills === 'function') unsubSkills();
-      if (typeof unsubCerts === 'function') unsubCerts();
-    };
-  }, []);
 
   const hasCertificates = Boolean(certificates && certificates.length > 0);
 
   return (
-    <div className="relative min-h-screen bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-300 selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="relative min-h-screen bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-300 selection:bg-amber-500/30 selection:text-amber-200">
       {/* Intro Preloader */}
       <Preloader profile={profile} />
 
       {/* Particle background */}
       <ParticleBackground />
+
+      {/* Global Interactive Currency Rain on Cursor Hover */}
+      <GlobalCurrencyRain />
 
       {/* Interactive desktop cursor glow */}
       <CustomCursor />
@@ -96,7 +55,7 @@ export default function Home() {
         <About profile={profile} />
         <Education educationList={educationList} />
         <Skills skillsList={skillsList} />
-        <Projects projects={projects} loading={projectsLoading} />
+        <Projects projects={projects} loading={false} />
         {hasCertificates && <Certificates certificates={certificates} />}
         <Contact profile={profile} onToast={setToast} />
       </main>

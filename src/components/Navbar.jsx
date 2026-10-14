@@ -140,18 +140,20 @@ export default function Navbar({ hasCertificates = true }) {
             )}
           </nav>
 
-          {/* Right actions: ThemeToggle + Admin link + CTA */}
+          {/* Right actions: ThemeToggle + GitHub link + CTA */}
           <div className="hidden md:flex items-center gap-3">
             <ThemeToggle />
 
-            <Link
-              to="/admin"
-              title="Admin Portal"
-              className="p-2.5 rounded-xl border border-slate-700/60 dark:bg-slate-800/80 bg-slate-100 text-slate-600 dark:text-slate-400 hover:text-cyan-400 hover:border-cyan-500/40 transition-all text-xs font-mono flex items-center gap-1.5"
+            <a
+              href="https://github.com/dhirajkumar-09/My_Portfolio_"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="GitHub Repository"
+              className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500/40 transition-all text-xs font-mono flex items-center gap-1.5 shadow-sm"
             >
-              <Terminal className="w-4 h-4" />
-              <span>Admin</span>
-            </Link>
+              <Terminal className="w-4 h-4 text-amber-500" />
+              <span>GitHub</span>
+            </a>
 
             <a
               href="#contact"
@@ -159,7 +161,7 @@ export default function Navbar({ hasCertificates = true }) {
                 e.preventDefault();
                 scrollTo('#contact');
               }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 transition-all shadow-glow-cyan/50 transform hover:-translate-y-0.5"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-amber-400 via-emerald-400 to-cyan-400 hover:from-amber-300 hover:to-emerald-300 transition-all shadow-md transform hover:-translate-y-0.5 cursor-pointer"
             >
               <span>Connect</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
@@ -209,20 +211,22 @@ export default function Navbar({ hasCertificates = true }) {
             )}
 
             <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
-              <Link
-                to="/admin"
+              <a
+                href="https://github.com/dhirajkumar-09/My_Portfolio_"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setIsOpen(false)}
-                className="flex-1 py-2.5 px-4 rounded-xl text-center text-xs font-mono border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400"
+                className="flex-1 py-2.5 px-4 rounded-xl text-center text-xs font-mono border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400"
               >
-                Admin Portal
-              </Link>
+                GitHub Repo
+              </a>
               <a
                 href="#contact"
                 onClick={(e) => {
                   e.preventDefault();
                   scrollTo('#contact');
                 }}
-                className="flex-1 py-2.5 px-4 rounded-xl text-center text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400"
+                className="flex-1 py-2.5 px-4 rounded-xl text-center text-xs font-semibold text-slate-950 bg-gradient-to-r from-amber-400 via-emerald-400 to-cyan-400"
               >
                 Connect Now
               </a>
