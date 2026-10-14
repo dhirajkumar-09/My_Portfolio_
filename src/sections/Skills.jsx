@@ -46,7 +46,8 @@ const ICON_MAP = {
   MessageSquare,
   Users,
   Award,
-  Clock
+  Clock,
+  Sparkles
 };
 
 export default function Skills({ skillsList }) {

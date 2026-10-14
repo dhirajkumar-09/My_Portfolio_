@@ -22,7 +22,7 @@
 // ==============================================================================
 export const profileData = {
   name: "Dhiraj Kumar",
-  title: "B.Tech CSE (IoT Specialization) & Strategic Management Aspirant",
+  title: "B.Tech CSE (IoT Specialization) & Software Engineer",
   college: "Bakhtiyarpur College of Engineering, Patna",
   year: "2nd Year Student (2023 - 2027)",
   affiliation: "Dept. of Science & Technology, Govt. of Bihar",
@@ -35,45 +35,45 @@ export const profileData = {
 
   // Cycling roles in the Hero typing animation (Edit or add as many as you like)
   roles: [
-    "Business & Management Strategist",
-    "FinTech & Systems Developer",
-    "Product Operations Manager",
-    "Quantitative Problem Solver",
-    "IoT & Embedded Engineer"
+    "Full-Stack Web Developer",
+    "IoT & Embedded Systems Engineer",
+    "Computer Science Student",
+    "Algorithmic Problem Solver",
+    "Python & React Developer"
   ],
 
   // Executive tagline / value statement
   tagline:
-    "Bridging scalable software architecture with strategic business management, financial systems, and high-impact product operations.",
+    "Engineering scalable software architectures, real-time IoT hardware telemetry, and modern full-stack web applications.",
 
   // Primary biography narrative
   bio:
-    "Motivated, detail-oriented B.Tech Computer Science student specializing in IoT at Bakhtiyarpur College of Engineering, Patna, with a deep passion for Business Management, Fintech systems, and strategic operations. Focused on building high-performance software, telemetry pipelines, and commercially viable technology products.",
+    "Motivated, detail-oriented B.Tech Computer Science student specializing in IoT at Bakhtiyarpur College of Engineering, Patna. Passionate about building high-performance software, real-time hardware telemetry pipelines, and responsive modern web applications.",
 
   aboutHeading: "About My Journey & Vision",
-  aboutSubtitle: "Combining engineering discipline with business strategy to engineer high-impact technology.",
-  aboutBadge: "Leadership & Technical Aspirations",
-  aboutTitle: "B.Tech CSE Student & Business Technologist",
+  aboutSubtitle: "Engineering innovative solutions with modern software architecture and IoT systems.",
+  aboutBadge: "Technical Discipline & Innovation",
+  aboutTitle: "B.Tech CSE Student & Software Developer",
   aboutBio2:
-    "Currently in my 2nd year (2023–2027), I focus on writing clean, modular code, designing hardware telemetry pipelines, and building accessible full-stack apps. Whether managing crowd flows in stadiums, creating empathetic AI tools, or modeling financial systems, I thrive on turning complex problems into elegant, scalable solutions.",
+    "Currently in my 2nd year (2023–2027), I focus on writing clean, modular code, designing hardware telemetry pipelines, and building accessible full-stack apps. Whether monitoring crowd flows in stadiums, creating empathetic AI tools, or optimizing algorithm performance, I thrive on turning complex problems into elegant, scalable solutions.",
 
   // Strategic Focus Pillars (Displayed as interactive cards in the About section)
   pillars: [
     {
-      title: "Business Management & FinTech",
-      desc: "Passionate about capital efficiency, strategic operations, fintech algorithms, and commercial product scalability."
-    },
-    {
-      title: "IoT & Embedded Engineering",
-      desc: "Integrating microcontrollers, real-time telemetry, and hardware protocols with cloud dashboards for automated monitoring."
+      title: "IoT & Embedded Systems",
+      desc: "Integrating microcontrollers, sensors, and real-time telemetry protocols with cloud dashboards for automated edge computing."
     },
     {
       title: "Modern Full-Stack Web Architecture",
       desc: "Crafting responsive, high-performance web applications using React, modern JavaScript, Tailwind CSS, and scalable APIs."
     },
     {
-      title: "Data Structures & Quantitative Analysis",
+      title: "Data Structures & Algorithms",
       desc: "Writing optimized algorithms with a disciplined approach to time-space complexity, OOP patterns, and data modeling."
+    },
+    {
+      title: "System Design & Telemetry Pipelines",
+      desc: "Designing resilient client-server systems, automated sensor pipelines, and reactive data visualization interfaces."
     }
   ],
 
@@ -98,9 +98,9 @@ export const projectsData = [
   {
     id: "stadium-controller",
     title: "Stadium Dynamic Entry Controller",
-    shortDescription: "Software-based crowd management and real-time gate telemetry system.",
+    shortDescription: "Software-based crowd monitoring and real-time gate telemetry system.",
     description:
-      "A comprehensive software-based system engineered to monitor and manage crowd density and movement at sports stadiums in real time. Incorporates entry/exit gate telemetry, bottleneck detection algorithms, and operational heatmaps to elevate attendee safety and optimize security logistics.",
+      "A comprehensive software-based system engineered to monitor crowd density and movement at sports stadiums in real time. Incorporates entry/exit gate telemetry, bottleneck detection algorithms, and operational heatmaps to elevate attendee safety and optimize security logistics.",
     category: "IoT & Systems",
     featured: true,
     order: 1,
@@ -113,7 +113,7 @@ export const projectsData = [
       "Real-time crowd flow density heatmaps across multiple stadium sectors",
       "Automated turnstile & gate throttling during threshold exceedance",
       "Instant security alert triggers for emergency response dispatch",
-      "Historical attendance analytics for event management optimization"
+      "Historical attendance analytics for stadium operations optimization"
     ]
   },
   {
@@ -175,8 +175,8 @@ export const educationData = [
     current: true,
     details: [
       "Specialization coursework: IoT Architecture, Microcontrollers, Embedded Systems, Sensor Interfacing",
-      "Core CS: Data Structures & Algorithms, Object-Oriented Programming, Database Management Systems, Computer Networks",
-      "Business & Tech: Technical symposiums, hackathons, engineering innovation, and product leadership workshops"
+      "Core CS: Data Structures & Algorithms, Object-Oriented Programming, Database Systems (SQL), Computer Networks",
+      "Technical symposiums, hackathons, open-source engineering innovation, and technical project workshops"
     ]
   },
   {
@@ -215,13 +215,13 @@ export const educationData = [
 // ==============================================================================
 export const skillsData = [
   {
-    id: "business-mgmt",
-    category: "Business & Management",
+    id: "tools-devops",
+    category: "Developer Tools & Platforms",
     items: [
-      { name: "Strategic Management", level: 88, icon: "Award", tag: "Strategy" },
-      { name: "Financial & Quantitative Systems", level: 85, icon: "TrendingUp", tag: "Finance" },
-      { name: "Product Operations", level: 84, icon: "Sliders", tag: "Operations" },
-      { name: "Team Leadership", level: 90, icon: "Users", tag: "Core" }
+      { name: "Git & GitHub", level: 90, icon: "GitBranch", tag: "Advanced" },
+      { name: "VS Code & Terminals", level: 92, icon: "Terminal", tag: "Expert" },
+      { name: "Postman & REST APIs", level: 84, icon: "Radio", tag: "Intermediate" },
+      { name: "Vite & Modern Tooling", level: 88, icon: "Sparkles", tag: "Advanced" }
     ]
   },
   {
@@ -266,9 +266,9 @@ export const skillsData = [
     category: "Professional Competencies",
     items: [
       { name: "Problem Solving", level: 92, icon: "CheckCircle", tag: "Core" },
-      { name: "Communication", level: 86, icon: "MessageSquare", tag: "Key" },
+      { name: "Technical Communication", level: 86, icon: "MessageSquare", tag: "Key" },
       { name: "Analytical Thinking", level: 90, icon: "Sparkles", tag: "Key" },
-      { name: "Time Management", level: 88, icon: "Clock", tag: "Key" }
+      { name: "Project Execution", level: 88, icon: "Clock", tag: "Key" }
     ]
   }
 ];

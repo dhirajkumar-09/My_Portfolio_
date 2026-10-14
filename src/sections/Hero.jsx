@@ -11,9 +11,7 @@ import {
   ExternalLink,
   Code2,
   GitFork,
-  Star,
-  Coins,
-  TrendingUp
+  Star
 } from 'lucide-react';
 import { Github, Linkedin } from '../components/SocialIcons';
 import { fetchGitHubProfile, fetchRepoDetails } from '../services/githubService';
@@ -22,10 +20,10 @@ export default function Hero({ profile }) {
   const roles = profile?.roles && profile.roles.length > 0
     ? profile.roles
     : [
-        'Business & Management Strategist',
-        'FinTech & Systems Developer',
-        'Product Operations Manager',
-        'Quantitative Problem Solver'
+        'Full-Stack Web Developer',
+        'IoT & Embedded Systems Engineer',
+        'Computer Science Student',
+        'Algorithmic Problem Solver'
       ];
 
   // Typing effect state
@@ -159,7 +157,7 @@ export default function Hero({ profile }) {
           className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-sans max-w-2xl leading-relaxed mx-auto"
         >
           {profile?.tagline ||
-            'Bridging scalable software architecture with strategic business management, financial systems, and high-impact product operations.'}
+            'Engineering scalable software architectures, real-time IoT hardware telemetry, and modern full-stack web applications.'}
         </motion.p>
 
         {/* Action Buttons */}

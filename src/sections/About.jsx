@@ -126,7 +126,7 @@ export default function About({ profile }) {
 
               <p className="text-slate-600 dark:text-slate-400 font-sans leading-relaxed text-sm">
                 {profile?.aboutBio2 ||
-                  'Currently in my 2nd year (2023–2027), I focus on writing clean, modular code, designing hardware telemetry pipelines, and building accessible full-stack apps. Whether managing crowd flows in stadiums or building empathetic AI companions, I thrive on turning complex problems into elegant software solutions.'}
+                  'Currently in my 2nd year (2023–2027), I focus on writing clean, modular code, designing hardware telemetry pipelines, and building accessible full-stack apps. Whether monitoring crowd flows in stadiums or building empathetic AI companions, I thrive on turning complex problems into elegant software solutions.'}
               </p>
             </div>
 

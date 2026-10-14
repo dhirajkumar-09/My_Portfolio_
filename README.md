@@ -1,4 +1,4 @@
-# 💎 Dhiraj Kumar — Executive & Engineering Portfolio
+# 💎 Dhiraj Kumar — Computer Science & IoT Engineering Portfolio
 
 <div align="center">
 
@@ -10,7 +10,7 @@
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-14.2-black?style=for-the-badge&logo=framer&logoColor=blue)](https://www.framer.com/motion/)
 [![License](https://img.shields.io/badge/License-MIT-amber?style=for-the-badge)](LICENSE)
 
-**An ultra-premium, interactive animated portfolio blending Computer Science & IoT Engineering with Strategic Business Management & FinTech.**
+**An ultra-premium, interactive animated portfolio showcasing Computer Science, IoT Hardware Telemetry & Full-Stack Web Engineering.**
 
 [Explore Live Demo](https://github.com/dhirajkumar-09/My_Portfolio_) • [Report Bug](https://github.com/dhirajkumar-09/My_Portfolio_/issues) • [Request Feature](https://github.com/dhirajkumar-09/My_Portfolio_/issues)
 
@@ -20,20 +20,17 @@
 
 ## 🌟 Highlights & Key Features
 
-- **🌧️ Full-Screen Currency Rain Physics (`GlobalCurrencyRain`)**:
-  - Moving or hovering the cursor anywhere across the screen triggers a cascading stream of global currencies (**`₹`**, **`$`**, **`€`**, **`₿`**, **`¥`**, **`£`**) and shimmering golden droplets dripping down (*pip down pip down like rainwater*).
-  - Authentic physics with light trails, air wobble, and water ripple splashes upon hitting the bottom floor.
-  - Zero lag, 60 FPS HTML5 Canvas engine with `pointer-events: none` so all links and buttons remain instantly clickable.
-  - Screen click trigger for a celebratory jackpot coin rainfall.
 - **⚡ 100% Zero-Backend Architecture**:
   - No database latency, no Firebase setup, and no auth hurdles.
   - All portfolio content is centralized in a single modular data file: [`src/data/portfolioData.js`](src/data/portfolioData.js).
   - Edit your JSX/data documentation directly in code and changes hot-reload instantly!
-- **💼 Executive Hero Showcase**:
-  - High-impact typography, status pill, real-time typing animation with business & tech leadership roles.
+- **💼 Interactive Hero Showcase**:
+  - High-impact typography, status pill, real-time typing animation cycling technical roles.
   - Instant resume download, direct project links, and live GitHub telemetry.
-- **🏛️ Strategic Engineering & Business Pillars**:
-  - Dynamic cards highlighting core competencies in *Business Management & FinTech*, *IoT & Embedded Systems*, *Full-Stack Architecture*, and *Quantitative DSA*.
+- **🏅 Executive Highlights Ribbon**:
+  - 4 quick impact metrics (`10+ Projects Built`, `14+ Tech Stack`, `150+ DSA Solved`, `Top 1% Commitment`).
+- **🏛️ Core Engineering Focus Pillars**:
+  - Dynamic cards highlighting competencies in *IoT & Embedded Systems*, *Modern Full-Stack Architecture*, *Data Structures & Algorithms*, and *System Design & Telemetry Pipelines*.
 - **📊 Interactive Project Showcase & Deep-Dive Modal**:
   - Filterable portfolio cards by category (*IoT & Systems*, *AI & Web*, *Full-Stack*).
   - High-resolution modal with key architectural highlights, metrics, live URLs, and GitHub source links.
@@ -57,10 +54,9 @@ c:\My_Portfolio\
 │   ├── assets/                 # Static images and icons
 │   ├── components/             # Reusable UI & animation components
 │   │   ├── CustomCursor.jsx    # Fluid desktop cursor glow
-│   │   ├── Footer.jsx          # Executive footer with navigation & socials
-│   │   ├── GlobalCurrencyRain.jsx # Full-screen cursor-hover currency rainfall engine
+│   │   ├── Footer.jsx          # Footer with navigation & socials
 │   │   ├── Navbar.jsx          # Frosted glass navbar with active section spy
-│   │   ├── ParticleBackground.jsx # Subtle constellation node background
+│   │   ├── ParticleBackground.jsx # Constellation node background mesh
 │   │   ├── Preloader.jsx       # Elegant startup preloader animation
 │   │   ├── ProjectModal.jsx    # Project deep-dive modal
 │   │   ├── SectionHeading.jsx  # Reusable section title component
@@ -75,8 +71,8 @@ c:\My_Portfolio\
 │   │   ├── Home.jsx            # Main single-page portfolio layout
 │   │   └── NotFound.jsx        # 404 fallback page
 │   ├── sections/
-│   │   ├── Hero.jsx            # Executive hero section with dynamic typing
-│   │   ├── About.jsx           # Bio, metrics & strategic engineering pillars
+│   │   ├── Hero.jsx            # Hero section with dynamic typing & ribbon
+│   │   ├── About.jsx           # Bio, metrics & engineering focus pillars
 │   │   ├── Education.jsx       # Chronological academic milestones
 │   │   ├── Skills.jsx          # Filterable skills with category badges
 │   │   ├── Projects.jsx        # Filterable project showcase grid
@@ -105,19 +101,19 @@ Open [`src/data/portfolioData.js`](src/data/portfolioData.js) and edit `profileD
 ```javascript
 export const profileData = {
   name: "Dhiraj Kumar",
-  title: "B.Tech CSE (IoT Specialization)",
+  title: "B.Tech CSE (IoT Specialization) & Software Engineer",
   college: "Bakhtiyarpur College of Engineering, Patna",
   year: "2nd Year Student (2023 - 2027)",
   email: "dhirajku00021@gmail.com",
   phone: "+91 9876543210",
   typingPrefix: "> I am a",
   roles: [
-    "Business & Management Strategist",
-    "FinTech & Systems Developer",
-    "Product Operations Manager",
-    "Quantitative Problem Solver"
+    "Full-Stack Web Developer",
+    "IoT & Embedded Systems Engineer",
+    "Computer Science Student",
+    "Algorithmic Problem Solver"
   ],
-  tagline: "Bridging scalable software architecture with strategic business management...",
+  tagline: "Engineering scalable software architectures, real-time IoT hardware telemetry...",
   ...
 };
 ```
