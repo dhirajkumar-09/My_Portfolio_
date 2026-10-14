@@ -13,7 +13,7 @@ const NAV_ITEMS = [
   { label: 'Contact', href: '#contact' },
 ];
 
-export default function Navbar() {
+export default function Navbar({ hasCertificates = true }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
   const [scrolled, setScrolled] = useState(false);
@@ -21,13 +21,25 @@ export default function Navbar() {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
 
+  const navItems = hasCertificates
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter((item) => item.href !== '#certificates');
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 30);
 
       if (!isHomePage) return;
 
-      const sections = ['hero', 'about', 'education', 'skills', 'projects', 'certificates', 'contact'];
+      const sections = [
+        'hero',
+        'about',
+        'education',
+        'skills',
+        'projects',
+        ...(hasCertificates ? ['certificates'] : []),
+        'contact'
+      ];
       const scrollPosition = window.scrollY + 200;
 
       for (const sectionId of sections) {
@@ -94,7 +106,7 @@ export default function Navbar() {
           {/* Desktop Nav Items */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
             {isHomePage &&
-              NAV_ITEMS.map((item) => {
+              navItems.map((item) => {
                 const isActive = activeSection === item.href.replace('#', '');
                 return (
                   <a
@@ -173,7 +185,7 @@ export default function Navbar() {
         <div className="md:hidden px-4 pt-2 pb-6 bg-white/95 dark:bg-slate-950/95 border-b border-slate-200 dark:border-slate-800 backdrop-blur-xl transition-colors duration-300">
           <div className="flex flex-col space-y-2 pt-2">
             {isHomePage ? (
-              NAV_ITEMS.map((item) => (
+              navItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}

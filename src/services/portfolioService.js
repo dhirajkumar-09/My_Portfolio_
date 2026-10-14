@@ -36,7 +36,7 @@ const STORAGE_KEYS = {
 const getLocal = (key, fallback) => {
   try {
     const val = localStorage.getItem(key);
-    return val ? JSON.parse(val) : fallback;
+    return val !== null && val !== undefined ? JSON.parse(val) : fallback;
   } catch {
     return fallback;
   }
@@ -104,18 +104,32 @@ export const subscribeToProjects = (callback) => {
             ...docSnap.data()
           }));
           setLocal(STORAGE_KEYS.PROJECTS, list);
+          setLocal('dhiraj_portfolio_projects_user_modified', 'true');
           callback(list);
         } else {
-          callback(getLocal(STORAGE_KEYS.PROJECTS, defaultProjects));
+          const wasModifiedLocally = localStorage.getItem('dhiraj_portfolio_projects_user_modified') === 'true';
+          const localData = getLocal(STORAGE_KEYS.PROJECTS, null);
+          if (wasModifiedLocally || (localData !== null && Array.isArray(localData) && localData.length === 0)) {
+            setLocal(STORAGE_KEYS.PROJECTS, []);
+            callback([]);
+          } else if (localData !== null && Array.isArray(localData)) {
+            callback(localData);
+          } else {
+            callback(defaultProjects);
+          }
         }
       },
       (error) => {
         console.warn('Firestore projects snapshot error:', error);
-        callback(getLocal(STORAGE_KEYS.PROJECTS, defaultProjects));
+        const wasModifiedLocally = localStorage.getItem('dhiraj_portfolio_projects_user_modified') === 'true';
+        const local = getLocal(STORAGE_KEYS.PROJECTS, wasModifiedLocally ? [] : defaultProjects);
+        callback(local);
       }
     );
   } else {
-    callback(getLocal(STORAGE_KEYS.PROJECTS, defaultProjects));
+    const wasModifiedLocally = localStorage.getItem('dhiraj_portfolio_projects_user_modified') === 'true';
+    const local = getLocal(STORAGE_KEYS.PROJECTS, wasModifiedLocally ? [] : defaultProjects);
+    callback(local);
     return () => {};
   }
 };
@@ -140,6 +154,7 @@ export const createProject = async (projectData) => {
   const newProj = { id: finalId, ...projectData };
   const updated = [newProj, ...current];
   setLocal(STORAGE_KEYS.PROJECTS, updated);
+  setLocal('dhiraj_portfolio_projects_user_modified', 'true');
   return newProj;
 };
 
@@ -151,6 +166,7 @@ export const updateProject = async (id, projectData) => {
     ? current.map((p) => (p.id === id ? { ...p, ...projectData } : p))
     : [{ id, ...projectData }, ...current];
   setLocal(STORAGE_KEYS.PROJECTS, updated);
+  setLocal('dhiraj_portfolio_projects_user_modified', 'true');
 
   // 2. Sync to Firestore using setDoc with merge: true (creates doc if missing, updates if exists)
   if (isFirebaseConfigured && db) {
@@ -176,6 +192,7 @@ export const deleteProject = async (id) => {
   const current = getLocal(STORAGE_KEYS.PROJECTS, defaultProjects);
   const updated = current.filter((p) => p.id !== id);
   setLocal(STORAGE_KEYS.PROJECTS, updated);
+  setLocal('dhiraj_portfolio_projects_user_modified', 'true');
 
   if (isFirebaseConfigured && db) {
     try {
@@ -184,7 +201,7 @@ export const deleteProject = async (id) => {
       console.warn('Firestore deleteProject sync error:', err);
     }
   }
-  return id;
+  return updated;
 };
 
 // ----------------------------------------------------
@@ -202,18 +219,32 @@ export const subscribeToEducation = (callback) => {
             ...docSnap.data()
           }));
           setLocal(STORAGE_KEYS.EDUCATION, list);
+          setLocal('dhiraj_portfolio_education_user_modified', 'true');
           callback(list);
         } else {
-          callback(getLocal(STORAGE_KEYS.EDUCATION, defaultEducation));
+          const wasModifiedLocally = localStorage.getItem('dhiraj_portfolio_education_user_modified') === 'true';
+          const localData = getLocal(STORAGE_KEYS.EDUCATION, null);
+          if (wasModifiedLocally || (localData !== null && Array.isArray(localData) && localData.length === 0)) {
+            setLocal(STORAGE_KEYS.EDUCATION, []);
+            callback([]);
+          } else if (localData !== null && Array.isArray(localData)) {
+            callback(localData);
+          } else {
+            callback(defaultEducation);
+          }
         }
       },
       (error) => {
         console.warn('Firestore education snapshot error:', error);
-        callback(getLocal(STORAGE_KEYS.EDUCATION, defaultEducation));
+        const wasModifiedLocally = localStorage.getItem('dhiraj_portfolio_education_user_modified') === 'true';
+        const local = getLocal(STORAGE_KEYS.EDUCATION, wasModifiedLocally ? [] : defaultEducation);
+        callback(local);
       }
     );
   } else {
-    callback(getLocal(STORAGE_KEYS.EDUCATION, defaultEducation));
+    const wasModifiedLocally = localStorage.getItem('dhiraj_portfolio_education_user_modified') === 'true';
+    const local = getLocal(STORAGE_KEYS.EDUCATION, wasModifiedLocally ? [] : defaultEducation);
+    callback(local);
     return () => {};
   }
 };
@@ -226,6 +257,7 @@ export const addOrUpdateEducation = async (eduItem) => {
     : [...current, eduItem];
 
   setLocal(STORAGE_KEYS.EDUCATION, updated);
+  setLocal('dhiraj_portfolio_education_user_modified', 'true');
   if (isFirebaseConfigured && db) {
     const docRef = doc(db, 'education', eduItem.id);
     await setDoc(docRef, eduItem, { merge: true });
@@ -237,6 +269,7 @@ export const deleteEducation = async (id) => {
   const current = getLocal(STORAGE_KEYS.EDUCATION, defaultEducation);
   const updated = current.filter((e) => e.id !== id);
   setLocal(STORAGE_KEYS.EDUCATION, updated);
+  setLocal('dhiraj_portfolio_education_user_modified', 'true');
   if (isFirebaseConfigured && db) {
     await deleteDoc(doc(db, 'education', id));
   }
@@ -525,18 +558,34 @@ export const subscribeToCertificates = (callback) => {
             ...docSnap.data()
           }));
           setLocal(STORAGE_KEYS.CERTIFICATES, list);
+          setLocal('dhiraj_portfolio_certificates_user_modified', 'true');
           callback(list);
         } else {
-          callback(getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates));
+          // If Firestore returns 0 documents, check if user deleted/modified them
+          const wasModifiedLocally = localStorage.getItem('dhiraj_portfolio_certificates_user_modified') === 'true';
+          const localData = getLocal(STORAGE_KEYS.CERTIFICATES, null);
+
+          if (wasModifiedLocally || (localData !== null && Array.isArray(localData) && localData.length === 0)) {
+            setLocal(STORAGE_KEYS.CERTIFICATES, []);
+            callback([]);
+          } else if (localData !== null && Array.isArray(localData)) {
+            callback(localData);
+          } else {
+            callback(defaultCertificates);
+          }
         }
       },
       (error) => {
         console.warn('Firestore certificates snapshot error:', error);
-        callback(getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates));
+        const wasModifiedLocally = localStorage.getItem('dhiraj_portfolio_certificates_user_modified') === 'true';
+        const local = getLocal(STORAGE_KEYS.CERTIFICATES, wasModifiedLocally ? [] : defaultCertificates);
+        callback(local);
       }
     );
   } else {
-    callback(getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates));
+    const wasModifiedLocally = localStorage.getItem('dhiraj_portfolio_certificates_user_modified') === 'true';
+    const local = getLocal(STORAGE_KEYS.CERTIFICATES, wasModifiedLocally ? [] : defaultCertificates);
+    callback(local);
     return () => {};
   }
 };
@@ -561,6 +610,7 @@ export const createCertificate = async (certData) => {
   const newCert = { id: finalId, ...certData };
   const updated = [newCert, ...current];
   setLocal(STORAGE_KEYS.CERTIFICATES, updated);
+  setLocal('dhiraj_portfolio_certificates_user_modified', 'true');
   return newCert;
 };
 
@@ -571,6 +621,7 @@ export const updateCertificate = async (id, certData) => {
     ? current.map((c) => (c.id === id ? { ...c, ...certData } : c))
     : [{ id, ...certData }, ...current];
   setLocal(STORAGE_KEYS.CERTIFICATES, updated);
+  setLocal('dhiraj_portfolio_certificates_user_modified', 'true');
 
   if (isFirebaseConfigured && db) {
     try {
@@ -595,6 +646,7 @@ export const deleteCertificate = async (id) => {
   const current = getLocal(STORAGE_KEYS.CERTIFICATES, defaultCertificates);
   const updated = current.filter((c) => c.id !== id);
   setLocal(STORAGE_KEYS.CERTIFICATES, updated);
+  setLocal('dhiraj_portfolio_certificates_user_modified', 'true');
 
   if (isFirebaseConfigured && db) {
     try {
@@ -604,7 +656,7 @@ export const deleteCertificate = async (id) => {
     }
   }
 
-  return id;
+  return updated;
 };
 
 // ----------------------------------------------------

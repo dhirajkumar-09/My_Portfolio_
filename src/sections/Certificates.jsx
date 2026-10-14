@@ -4,6 +4,10 @@ import { Award, ExternalLink, Calendar, CheckCircle2, ShieldCheck, Eye, X } from
 import SectionHeading from '../components/SectionHeading';
 
 export default function Certificates({ certificates = [] }) {
+  if (!certificates || certificates.length === 0) {
+    return null;
+  }
+
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [previewCert, setPreviewCert] = useState(null);
 

@@ -421,9 +421,24 @@ export default function Admin() {
     if (window.confirm(`Are you sure you want to delete certificate "${title}"?`)) {
       try {
         await deleteCertificate(id);
+        setCertificates((prev) => prev.filter((c) => c.id !== id));
         setToast({ type: 'success', title: 'Deleted', message: `Certificate deleted.` });
       } catch (err) {
         setToast({ type: 'error', title: 'Error', message: 'Failed to delete certificate.' });
+      }
+    }
+  };
+
+  const handleClearAllCertificates = async () => {
+    if (window.confirm('Are you sure you want to delete ALL certificates? This will completely clear the certificates catalog and hide the section from your portfolio.')) {
+      try {
+        for (const cert of certificates) {
+          await deleteCertificate(cert.id);
+        }
+        setCertificates([]);
+        setToast({ type: 'success', title: 'All Deleted', message: 'All certificates removed.' });
+      } catch (err) {
+        setToast({ type: 'error', title: 'Error', message: 'Failed to delete all certificates.' });
       }
     }
   };
@@ -1101,81 +1116,113 @@ export default function Admin() {
                 </p>
               </div>
 
-              <button
-                onClick={handleOpenAddCert}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-glow-cyan transition-all cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add New Certificate</span>
-              </button>
-            </div>
+              <div className="flex items-center gap-2">
+                {certificates.length > 0 && (
+                  <button
+                    onClick={handleClearAllCertificates}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all cursor-pointer"
+                    title="Delete all certificates at once"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete All</span>
+                  </button>
+                )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {certificates.map((c) => (
-                <div
-                  key={c.id}
-                  className="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 space-y-4 flex flex-col justify-between"
+                <button
+                  onClick={handleOpenAddCert}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-glow-cyan transition-all cursor-pointer"
                 >
-                  <div className="space-y-3">
-                    <div className="relative h-40 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
-                      <img
-                        src={c.image || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80"}
-                        alt={c.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-black/70 text-cyan-300 backdrop-blur-md">
-                        {c.category || 'Certification'}
-                      </span>
-                    </div>
-
-                    <div>
-                      <span className="text-[11px] font-mono text-cyan-400 font-semibold block">
-                        {c.issuer} &bull; {c.issueDate}
-                      </span>
-                      <h3 className="text-base font-display font-bold text-white mt-1 line-clamp-2">
-                        {c.title}
-                      </h3>
-                      {c.credentialId && (
-                        <p className="text-[10px] font-mono text-slate-500 mt-1">
-                          ID: {c.credentialId}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-1">
-                      {(c.skills || []).map((s, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                    <span className="text-slate-500 font-mono">Order: #{c.order}</span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleOpenEditCert(c)}
-                        className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 transition-colors cursor-pointer"
-                        title="Edit certificate"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCert(c.id, c.title)}
-                        className="p-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 transition-colors cursor-pointer"
-                        title="Delete certificate"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  <Plus className="w-4 h-4" />
+                  <span>Add New Certificate</span>
+                </button>
+              </div>
             </div>
+
+            {certificates.length === 0 ? (
+              <div className="text-center py-16 px-4 rounded-3xl bg-slate-900/60 border border-slate-800 space-y-3">
+                <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mx-auto text-cyan-400">
+                  <Award className="w-7 h-7" />
+                </div>
+                <h3 className="text-base font-semibold text-white">No Certificates in Catalog</h3>
+                <p className="text-xs text-slate-400 font-mono max-w-md mx-auto leading-relaxed">
+                  You have deleted all certificates. Your live portfolio automatically hides the Certificates section until you add your first credential.
+                </p>
+                <button
+                  onClick={handleOpenAddCert}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-glow-cyan cursor-pointer mt-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add First Certificate</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {certificates.map((c) => (
+                  <div
+                    key={c.id}
+                    className="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 space-y-4 flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="relative h-40 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                        <img
+                          src={c.image || "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80"}
+                          alt={c.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-black/70 text-cyan-300 backdrop-blur-md">
+                          {c.category || 'Certification'}
+                        </span>
+                      </div>
+
+                      <div>
+                        <span className="text-[11px] font-mono text-cyan-400 font-semibold block">
+                          {c.issuer} &bull; {c.issueDate}
+                        </span>
+                        <h3 className="text-base font-display font-bold text-white mt-1 line-clamp-2">
+                          {c.title}
+                        </h3>
+                        {c.credentialId && (
+                          <p className="text-[10px] font-mono text-slate-500 mt-1">
+                            ID: {c.credentialId}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap gap-1">
+                        {(c.skills || []).map((s, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+                      <span className="text-slate-500 font-mono">Order: #{c.order}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenEditCert(c)}
+                          className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 transition-colors cursor-pointer"
+                          title="Edit certificate"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCert(c.id, c.title)}
+                          className="p-2 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 transition-colors cursor-pointer"
+                          title="Delete certificate"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -1238,12 +1285,39 @@ export default function Admin() {
 
                   <div>
                     <label className="block text-xs font-mono text-slate-300 mb-1">
+                      Academic Year / Status (Hero status pill)
+                    </label>
+                    <input
+                      type="text"
+                      value={profile.year || ''}
+                      placeholder="e.g. 2nd Year Student (2023 - 2027)"
+                      onChange={(e) => setProfile({ ...profile, year: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">
                       Base Location
                     </label>
                     <input
                       type="text"
                       value={profile.location || ''}
+                      placeholder="e.g. Patna, Bihar, India"
                       onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">
+                      Phone Number (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={profile.phone || ''}
+                      placeholder="+91 9876543210"
+                      onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400"
                     />
                   </div>
@@ -1542,7 +1616,7 @@ export default function Admin() {
                 <h3 className="text-sm font-mono uppercase tracking-wider text-cyan-400">
                   Links, Repos &amp; Resume PDF
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
                     <label className="block text-xs font-mono text-slate-300 mb-1">
                       Contact Email
@@ -1575,6 +1649,19 @@ export default function Admin() {
                       type="url"
                       value={profile.linkedin || 'https://linkedin.com'}
                       onChange={(e) => setProfile({ ...profile, linkedin: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">
+                      Twitter / X (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      value={profile.twitter || ''}
+                      placeholder="https://x.com/..."
+                      onChange={(e) => setProfile({ ...profile, twitter: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
                     />
                   </div>

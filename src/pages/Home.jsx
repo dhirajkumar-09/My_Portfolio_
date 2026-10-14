@@ -47,23 +47,23 @@ export default function Home() {
     // 2. Subscribe to projects
     setProjectsLoading(true);
     const unsubProjects = subscribeToProjects((data) => {
-      if (data && data.length > 0) setProjects(data);
+      if (Array.isArray(data)) setProjects(data);
       setProjectsLoading(false);
     });
 
     // 3. Subscribe to education
     const unsubEducation = subscribeToEducation((data) => {
-      if (data && data.length > 0) setEducationList(data);
+      if (Array.isArray(data)) setEducationList(data);
     });
 
     // 4. Subscribe to skills
     const unsubSkills = subscribeToSkills((data) => {
-      if (data && data.length > 0) setSkillsList(data);
+      if (Array.isArray(data)) setSkillsList(data);
     });
 
     // 5. Subscribe to certificates
     const unsubCerts = subscribeToCertificates((data) => {
-      if (data && data.length > 0) setCertificates(data);
+      if (Array.isArray(data)) setCertificates(data);
     });
 
     return () => {
@@ -75,10 +75,12 @@ export default function Home() {
     };
   }, []);
 
+  const hasCertificates = Boolean(certificates && certificates.length > 0);
+
   return (
     <div className="relative min-h-screen bg-slate-50 dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-300 selection:bg-cyan-500/30 selection:text-cyan-200">
       {/* Intro Preloader */}
-      <Preloader />
+      <Preloader profile={profile} />
 
       {/* Particle background */}
       <ParticleBackground />
@@ -87,7 +89,7 @@ export default function Home() {
       <CustomCursor />
 
       {/* Sticky glass navigation */}
-      <Navbar />
+      <Navbar hasCertificates={hasCertificates} />
 
       <main className="relative z-10">
         <Hero profile={profile} />
@@ -95,7 +97,7 @@ export default function Home() {
         <Education educationList={educationList} />
         <Skills skillsList={skillsList} />
         <Projects projects={projects} loading={projectsLoading} />
-        <Certificates certificates={certificates} />
+        {hasCertificates && <Certificates certificates={certificates} />}
         <Contact profile={profile} onToast={setToast} />
       </main>
 

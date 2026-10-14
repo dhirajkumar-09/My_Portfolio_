@@ -116,7 +116,10 @@ export default function Hero({ profile }) {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span>Bakhtiyarpur College of Engineering, Patna &bull; 2nd Year</span>
+              <span>
+                {profile?.college || 'Bakhtiyarpur College of Engineering, Patna'} &bull;{' '}
+                {profile?.year || '2nd Year Student'}
+              </span>
             </motion.div>
 
             {/* Name & Title */}
@@ -242,7 +245,7 @@ export default function Hero({ profile }) {
 
               <div className="flex items-center gap-1.5 text-xs font-mono text-slate-600 dark:text-slate-400">
                 <MapPin className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-                <span>Patna, India</span>
+                <span>{profile?.location || 'Patna, Bihar, India'}</span>
               </div>
             </motion.div>
           </div>

@@ -2,17 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
-const GREETINGS = [
-  { text: 'नमस्ते 🙏', sub: 'Namaste • Warmest Greetings', lang: 'Hindi' },
-  { text: 'Namaste', sub: 'Welcome to my digital space', lang: 'English' },
-  { text: 'Welcome', sub: 'Explore Hardware & Web Systems', lang: 'Global' },
-  { text: 'Dhiraj Kumar', sub: 'IoT & Full-Stack Engineer', lang: 'Portfolio' }
-];
-
-export default function Preloader({ onComplete }) {
+export default function Preloader({ profile, onComplete }) {
   const [index, setIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [done, setDone] = useState(false);
+
+  const name = profile?.name || 'Dhiraj Kumar';
+  const role = profile?.roles?.[0] || profile?.title || 'IoT & Full-Stack Engineer';
+
+  const greetings = [
+    { text: 'नमस्ते 🙏', sub: 'Namaste • Warmest Greetings', lang: 'Hindi' },
+    { text: 'Namaste', sub: 'Welcome to my digital space', lang: 'Indian Culture' },
+    { text: 'Welcome', sub: 'Explore Hardware & Web Systems', lang: 'Global' },
+    { text: name, sub: role, lang: 'Portfolio' }
+  ];
 
   useEffect(() => {
     // Disable scrolling during intro
@@ -20,7 +23,7 @@ export default function Preloader({ onComplete }) {
 
     // Cycle through greetings every 600ms
     const greetingInterval = setInterval(() => {
-      setIndex((prev) => (prev < GREETINGS.length - 1 ? prev + 1 : prev));
+      setIndex((prev) => (prev < greetings.length - 1 ? prev + 1 : prev));
     }, 600);
 
     // Smooth counter from 0 to 100%
@@ -72,7 +75,7 @@ export default function Preloader({ onComplete }) {
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-slate-400 tracking-wider">PORTFOLIO.SYS</span>
               <span className="text-slate-600">//</span>
-              <span className="text-slate-300 font-semibold">{GREETINGS[index].lang}</span>
+              <span className="text-slate-300 font-semibold">{greetings[index].lang}</span>
             </div>
 
             <button
@@ -97,13 +100,13 @@ export default function Preloader({ onComplete }) {
               >
                 {/* Cultural / Modern Greeting Heading */}
                 <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-300">
-                  {GREETINGS[index].text}
+                  {greetings[index].text}
                 </h1>
 
                 {/* Subtitle / Meaning */}
                 <p className="text-sm sm:text-base md:text-lg font-sans text-slate-400 flex items-center justify-center gap-2">
                   <Sparkles className="w-4 h-4 text-cyan-400 flex-shrink-0 animate-pulse" />
-                  <span>{GREETINGS[index].sub}</span>
+                  <span>{greetings[index].sub}</span>
                 </p>
               </motion.div>
             </AnimatePresence>
