@@ -18,12 +18,14 @@ import QuantumChip3D from '../components/QuantumChip3D';
 import { fetchGitHubProfile, fetchRepoDetails } from '../services/githubService';
 
 export default function Hero({ profile }) {
-  const roles = profile?.roles || [
-    'CSE Student',
-    'IoT Enthusiast',
-    'Full-Stack Developer',
-    'Problem Solver'
-  ];
+  const roles = profile?.roles && profile.roles.length > 0
+    ? profile.roles
+    : [
+        'CSE Student',
+        'IoT Enthusiast',
+        'Full-Stack Developer',
+        'Problem Solver'
+      ];
 
   // Typing effect state
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
@@ -63,7 +65,13 @@ export default function Hero({ profile }) {
   }, []);
 
   useEffect(() => {
-    const fullText = roles[currentRoleIndex];
+    if (!roles || roles.length === 0) {
+      setCurrentText('');
+      return;
+    }
+
+    const safeIndex = currentRoleIndex % roles.length;
+    const fullText = roles[safeIndex] || '';
     const typingSpeed = isDeleting ? 45 : 95;
 
     const timer = setTimeout(() => {
@@ -74,7 +82,7 @@ export default function Hero({ profile }) {
         setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
       } else {
         const nextText = isDeleting
-          ? fullText.substring(0, currentText.length - 1)
+          ? fullText.substring(0, Math.max(0, currentText.length - 1))
           : fullText.substring(0, currentText.length + 1);
         setCurrentText(nextText);
       }
@@ -137,7 +145,7 @@ export default function Hero({ profile }) {
               {/* Typing role line */}
               <div className="h-10 flex items-center justify-center lg:justify-start">
                 <span className="text-xl sm:text-2xl font-mono font-semibold text-slate-800 dark:text-slate-300">
-                  &gt; I am a{' '}
+                  {profile?.typingPrefix !== undefined ? profile.typingPrefix : '> I am a'}{' '}
                   <span className="text-cyan-600 dark:text-cyan-400 underline decoration-cyan-500/40 decoration-2 underline-offset-4">
                     {currentText}
                   </span>

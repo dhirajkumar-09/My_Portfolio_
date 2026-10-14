@@ -86,6 +86,7 @@ export default function Admin() {
   const [certificates, setCertificates] = useState([]);
   const [messages, setMessages] = useState([]);
   const [profile, setProfile] = useState(defaultProfile);
+  const [newRoleInput, setNewRoleInput] = useState('');
   const [educationList, setEducationList] = useState([]);
   const [skillsList, setSkillsList] = useState([]);
 
@@ -466,6 +467,30 @@ export default function Admin() {
     } catch (err) {
       setToast({ type: 'error', title: 'Error', message: 'Failed to update profile.' });
     }
+  };
+
+  const handleAddRole = (e) => {
+    if (e) e.preventDefault();
+    const trimmed = newRoleInput.trim();
+    if (!trimmed) return;
+    const parts = trimmed.split(',').map((r) => r.trim()).filter(Boolean);
+    const currentRoles = profile.roles || [];
+    const newRoles = [...currentRoles];
+    parts.forEach((p) => {
+      if (!newRoles.includes(p)) newRoles.push(p);
+    });
+    setProfile({
+      ...profile,
+      roles: newRoles
+    });
+    setNewRoleInput('');
+  };
+
+  const handleRemoveRole = (roleToRemove) => {
+    setProfile({
+      ...profile,
+      roles: (profile.roles || []).filter((r) => r !== roleToRemove)
+    });
   };
 
   const updatePillar = (index, field, value) => {
@@ -1323,25 +1348,91 @@ export default function Admin() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-mono text-slate-300 mb-1">
-                    Hero Typing Roles (comma-separated list)
-                  </label>
-                  <input
-                    type="text"
-                    value={(profile.roles || []).join(', ')}
-                    onChange={(e) =>
-                      setProfile({
-                        ...profile,
-                        roles: e.target.value.split(',').map((r) => r.trim()).filter(Boolean)
-                      })
-                    }
-                    placeholder="CSE Student, IoT Enthusiast, Full-Stack Developer, Problem Solver"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
-                  />
-                  <p className="text-[11px] font-mono text-slate-500 mt-1">
-                    These roles cycle dynamically with the hero typing cursor animation.
-                  </p>
+                <div className="space-y-4 p-4 rounded-xl bg-slate-950/60 border border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-mono font-semibold text-cyan-300">
+                      Hero Typing Animation Customizer
+                    </label>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                      Live Dynamic
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-1">
+                      Typing Prefix Text (Lead text before role)
+                    </label>
+                    <input
+                      type="text"
+                      value={profile.typingPrefix !== undefined ? profile.typingPrefix : '> I am a'}
+                      onChange={(e) => setProfile({ ...profile, typingPrefix: e.target.value })}
+                      placeholder="> I am a"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                    />
+                    <p className="text-[11px] font-mono text-slate-500 mt-1">
+                      Prefix shown before the animated typing text (e.g. `&gt; I am a`, `I build`, or `Role:`).
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-slate-300 mb-2">
+                      Active Typing Roles ({profile.roles?.length || 0})
+                    </label>
+                    
+                    {/* Role Tags List */}
+                    <div className="flex flex-wrap gap-2 mb-3 min-h-[36px] p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                      {(profile.roles && profile.roles.length > 0) ? (
+                        profile.roles.map((role, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono bg-cyan-950/50 border border-cyan-500/30 text-cyan-300 shadow-sm transition-all hover:border-cyan-400"
+                          >
+                            <span>{role}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveRole(role)}
+                              className="w-4 h-4 rounded-full inline-flex items-center justify-center text-cyan-400/60 hover:text-rose-400 hover:bg-rose-500/20 transition-colors ml-0.5 cursor-pointer"
+                              title={`Remove "${role}"`}
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-xs font-mono text-slate-500 italic py-1">
+                          No roles added yet. Type a role below to add it.
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Add Role Input */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newRoleInput}
+                        onChange={(e) => setNewRoleInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddRole(e);
+                          }
+                        }}
+                        placeholder="Add a new role (or comma-separated roles) and press Enter..."
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddRole}
+                        className="px-4 py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30 text-xs font-mono font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add</span>
+                      </button>
+                    </div>
+                    <p className="text-[11px] font-mono text-slate-500 mt-1">
+                      Press <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">Enter</kbd> or click <strong>Add</strong>. You can also paste comma-separated roles.
+                    </p>
+                  </div>
                 </div>
 
                 <div>

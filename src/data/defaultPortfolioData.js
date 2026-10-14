@@ -11,6 +11,7 @@ export const defaultProfile = {
     "Full-Stack Developer",
     "Problem Solver"
   ],
+  typingPrefix: "> I am a",
   tagline: "Engineering intelligent IoT ecosystems and scalable web architectures that bridge physical hardware with modern cloud intelligence.",
   bio: "Motivated, detail-oriented B.Tech student in Computer Science & Engineering with IoT Specialization at Bakhtiyarpur College of Engineering, Patna. Actively seeking an internship or entry-level software/IoT developer role to engineer real-world systems, learn from industry leaders, and contribute impactful solutions.",
   aboutHeading: "About My Engineering Journey",
