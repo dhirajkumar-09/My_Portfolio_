@@ -46,7 +46,7 @@ function createTextSprite(text, color = '#06b6d4') {
   });
 
   const sprite = new THREE.Sprite(material);
-  sprite.scale.set(0.75, 0.75, 1);
+  sprite.scale.set(0.52, 0.52, 1);
   return sprite;
 }
 
@@ -60,11 +60,31 @@ export default function DevCore3D({ className = '' }) {
     // 1. Scene, Camera & Optimized Renderer
     const scene = new THREE.Scene();
 
-    let width = container.clientWidth || 450;
-    let height = container.clientHeight || 480;
+    let width = container.clientWidth || 400;
+    let height = container.clientHeight || 450;
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.z = 6.4;
+
+    // Auto-fit camera function so 3D elements are NEVER clipped on any screen/aspect ratio
+    const updateCameraFit = (w, h) => {
+      const aspect = w / (h || 1);
+      camera.aspect = aspect;
+      camera.updateProjectionMatrix();
+
+      // Outermost radius of our 3D elements (outermost ring + sprite is ~2.0)
+      const maxRadius = 2.05;
+      const padding = 1.25; // 25% safety margin
+      const targetExtent = maxRadius * padding;
+
+      const vFovRad = (camera.fov * Math.PI) / 180;
+      const distV = targetExtent / Math.tan(vFovRad / 2);
+      const distH = targetExtent / (aspect * Math.tan(vFovRad / 2));
+
+      // Choose max distance so neither vertical nor horizontal ever cuts off!
+      camera.position.z = Math.max(distV, distH, 6.2);
+    };
+
+    updateCameraFit(width, height);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -72,7 +92,9 @@ export default function DevCore3D({ className = '' }) {
       powerPreference: 'high-performance'
     });
     renderer.setSize(width, height);
-    // Clamp DPR to 1.5 to guarantee silky smooth 60 FPS without GPU lag
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     container.appendChild(renderer.domElement);
 
@@ -93,11 +115,11 @@ export default function DevCore3D({ className = '' }) {
     scene.add(coreGroup);
 
     // A. Geometric Polyhedron (Software Engine Core)
-    const innerGeo = new THREE.DodecahedronGeometry(1.2, 0);
+    const innerGeo = new THREE.DodecahedronGeometry(0.92, 0);
     const innerMat = new THREE.MeshStandardMaterial({
       color: 0x05131f,
       emissive: 0x06b6d4,
-      emissiveIntensity: 0.4,
+      emissiveIntensity: 0.45,
       metalness: 0.9,
       roughness: 0.15,
       wireframe: false
@@ -106,7 +128,7 @@ export default function DevCore3D({ className = '' }) {
     coreGroup.add(innerCore);
 
     // Outer Neon Wireframe Cage
-    const outerGeo = new THREE.DodecahedronGeometry(1.36, 0);
+    const outerGeo = new THREE.DodecahedronGeometry(1.06, 0);
     const outerEdges = new THREE.EdgesGeometry(outerGeo);
     const outerMat = new THREE.LineBasicMaterial({
       color: 0x22ff99,
@@ -122,7 +144,8 @@ export default function DevCore3D({ className = '' }) {
     coreGroup.add(ringGroup);
 
     // Orbit Ring 1 (Cyan)
-    const ring1Geo = new THREE.TorusGeometry(2.15, 0.018, 16, 120);
+    const ring1Radius = 1.45;
+    const ring1Geo = new THREE.TorusGeometry(ring1Radius, 0.015, 16, 120);
     const ring1Mat = new THREE.MeshStandardMaterial({
       color: 0x06b6d4,
       emissive: 0x06b6d4,
@@ -135,7 +158,8 @@ export default function DevCore3D({ className = '' }) {
     ringGroup.add(ring1);
 
     // Orbit Ring 2 (Emerald)
-    const ring2Geo = new THREE.TorusGeometry(2.55, 0.016, 16, 120);
+    const ring2Radius = 1.72;
+    const ring2Geo = new THREE.TorusGeometry(ring2Radius, 0.014, 16, 120);
     const ring2Mat = new THREE.MeshStandardMaterial({
       color: 0x10b981,
       emissive: 0x10b981,
@@ -149,7 +173,8 @@ export default function DevCore3D({ className = '' }) {
     ringGroup.add(ring2);
 
     // Orbit Ring 3 (Sky Blue Equator)
-    const ring3Geo = new THREE.TorusGeometry(2.9, 0.014, 16, 120);
+    const ring3Radius = 1.95;
+    const ring3Geo = new THREE.TorusGeometry(ring3Radius, 0.012, 16, 120);
     const ring3Mat = new THREE.MeshStandardMaterial({
       color: 0x38bdf8,
       emissive: 0x38bdf8,
@@ -164,23 +189,23 @@ export default function DevCore3D({ className = '' }) {
 
     // C. Software Developer Floating Glyphs (< />, { }, =>, 01)
     const sprite1 = createTextSprite('</>', '#06b6d4');
-    sprite1.position.set(2.15, 0, 0);
+    sprite1.position.set(ring1Radius, 0, 0);
     ring1.add(sprite1);
 
     const sprite2 = createTextSprite('{ }', '#10b981');
-    sprite2.position.set(0, 2.55, 0);
+    sprite2.position.set(0, ring2Radius, 0);
     ring2.add(sprite2);
 
     const sprite3 = createTextSprite('=>', '#38bdf8');
-    sprite3.position.set(-2.9, 0, 0);
+    sprite3.position.set(-ring3Radius, 0, 0);
     ring3.add(sprite3);
 
     const sprite4 = createTextSprite('01', '#a855f7');
-    sprite4.position.set(0, -2.15, 0);
+    sprite4.position.set(0, -ring1Radius, 0);
     ring1.add(sprite4);
 
-    // D. Lightweight Data Stream Starfield (Only 250 particles for zero lag)
-    const particleCount = 280;
+    // D. Lightweight Data Stream Starfield
+    const particleCount = 220;
     const particleGeo = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
@@ -190,7 +215,7 @@ export default function DevCore3D({ className = '' }) {
     const cSky = new THREE.Color(0x38bdf8);
 
     for (let i = 0; i < particleCount; i++) {
-      const radius = 2.6 + Math.random() * 2.2;
+      const radius = 1.5 + Math.random() * 0.55;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(Math.random() * 2 - 1);
 
@@ -208,10 +233,10 @@ export default function DevCore3D({ className = '' }) {
     particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const particleMat = new THREE.PointsMaterial({
-      size: 0.042,
+      size: 0.038,
       vertexColors: true,
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.75,
       blending: THREE.AdditiveBlending
     });
     const particles = new THREE.Points(particleGeo, particleMat);
@@ -282,14 +307,13 @@ export default function DevCore3D({ className = '' }) {
     window.addEventListener('touchmove', onTouchMove, { passive: true });
     window.addEventListener('touchend', onTouchEnd);
 
-    // 5. Responsive Resize Handling
+    // 5. Responsive Resize Handling with Auto-Fit
     const handleResize = () => {
       if (!container) return;
-      const newWidth = container.clientWidth || 450;
-      const newHeight = container.clientHeight || 480;
+      const newWidth = container.clientWidth || 400;
+      const newHeight = container.clientHeight || 450;
 
-      camera.aspect = newWidth / newHeight;
-      camera.updateProjectionMatrix();
+      updateCameraFit(newWidth, newHeight);
 
       renderer.setSize(newWidth, newHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
@@ -397,7 +421,7 @@ export default function DevCore3D({ className = '' }) {
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-full cursor-grab active:cursor-grabbing select-none ${className}`}
+      className={`relative w-full h-full cursor-grab active:cursor-grabbing select-none overflow-visible ${className}`}
       title="Interactive 3D Software Architecture Core"
     />
   );
