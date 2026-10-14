@@ -14,7 +14,7 @@ import {
   Star
 } from 'lucide-react';
 import { Github, Linkedin } from '../components/SocialIcons';
-import CyberTerminalHUD from '../components/CyberTerminalHUD';
+import CyberCore3D from '../components/CyberCore3D';
 import { fetchGitHubProfile, fetchRepoDetails } from '../services/githubService';
 
 export default function Hero({ profile }) {
@@ -248,7 +248,7 @@ export default function Hero({ profile }) {
             </motion.div>
           </div>
 
-          {/* Right Column: Interactive Cyber IoT Terminal HUD */}
+          {/* Right Column: Interactive 3D Cyber Core Centerpiece */}
           <div className="lg:col-span-5 flex justify-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -258,12 +258,13 @@ export default function Hero({ profile }) {
             >
               <div className="relative rounded-3xl">
                 {/* Outer dynamic ambient blur glow */}
-                <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/30 via-sky-600/20 to-emerald-500/30 rounded-3xl blur-xl opacity-60 animate-pulse-slow pointer-events-none" />
+                <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/30 via-sky-600/20 to-emerald-500/30 rounded-3xl blur-2xl opacity-75 animate-pulse-slow pointer-events-none" />
 
                 {/* Main Glass Housing */}
-                <div className="relative rounded-3xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-700/80 backdrop-blur-2xl p-2.5 sm:p-3 shadow-2xl">
-                  <div className="h-[490px] sm:h-[520px]">
-                    <CyberTerminalHUD profile={profile} />
+                <div className="relative rounded-3xl bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 backdrop-blur-2xl p-3 sm:p-4 shadow-2xl">
+                  {/* 3D Scene Viewport */}
+                  <div className="rounded-2xl overflow-hidden bg-[#050b14] border border-cyan-500/25 relative shadow-inner h-[460px] sm:h-[500px]">
+                    <CyberCore3D />
                   </div>
                 </div>
               </div>
