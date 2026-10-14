@@ -14,7 +14,7 @@ import {
   Star
 } from 'lucide-react';
 import { Github, Linkedin } from '../components/SocialIcons';
-import CyberGlobe3D from '../components/CyberGlobe3D';
+import QuantumChip3D from '../components/QuantumChip3D';
 import { fetchGitHubProfile, fetchRepoDetails } from '../services/githubService';
 
 export default function Hero({ profile }) {
@@ -248,20 +248,20 @@ export default function Hero({ profile }) {
             </motion.div>
           </div>
 
-          {/* Right Column: Interactive 3D Cyber Globe (GitHub Octoverse Style) */}
+          {/* Right Column: Interactive 3D Quantum Silicon Processor */}
           <div className="lg:col-span-5 flex items-center justify-center relative min-h-[440px] sm:min-h-[500px] w-full overflow-visible">
             {/* Ambient Multi-Layer Dynamic Glow Background (Directly on page) */}
             <div className="absolute w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-gradient-to-tr from-cyan-500/25 via-sky-500/15 to-emerald-500/20 blur-3xl pointer-events-none animate-pulse-slow" />
-            <div className="absolute w-56 sm:w-72 h-56 sm:h-72 rounded-full bg-cyan-400/10 blur-2xl pointer-events-none" />
+            <div className="absolute w-56 sm:w-72 h-56 sm:h-72 rounded-full bg-amber-400/10 blur-2xl pointer-events-none" />
 
-            {/* Direct Seamless 3D Globe Canvas */}
+            {/* Direct Seamless 3D Silicon Processor Canvas */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative w-full h-[440px] sm:h-[500px] flex items-center justify-center overflow-visible"
             >
-              <CyberGlobe3D />
+              <QuantumChip3D />
             </motion.div>
           </div>
 
