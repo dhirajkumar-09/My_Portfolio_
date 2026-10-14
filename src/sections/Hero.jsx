@@ -14,17 +14,17 @@ import {
   Star
 } from 'lucide-react';
 import { Github, Linkedin } from '../components/SocialIcons';
-import QuantumChip3D from '../components/QuantumChip3D';
+import ManagementCurrency3D from '../components/ManagementCurrency3D';
 import { fetchGitHubProfile, fetchRepoDetails } from '../services/githubService';
 
 export default function Hero({ profile }) {
   const roles = profile?.roles && profile.roles.length > 0
     ? profile.roles
     : [
-        'CSE Student',
-        'IoT Enthusiast',
-        'Full-Stack Developer',
-        'Problem Solver'
+        'Business & Management Strategist',
+        'FinTech & Systems Developer',
+        'Product Operations Manager',
+        'Quantitative Problem Solver'
       ];
 
   // Typing effect state
@@ -256,20 +256,20 @@ export default function Hero({ profile }) {
             </motion.div>
           </div>
 
-          {/* Right Column: Interactive 3D Quantum Silicon Processor */}
+          {/* Right Column: Interactive 3D Business Management & Currency Asset */}
           <div className="lg:col-span-5 flex items-center justify-center relative min-h-[440px] sm:min-h-[500px] w-full overflow-visible">
             {/* Ambient Multi-Layer Dynamic Glow Background (Directly on page) */}
-            <div className="absolute w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-gradient-to-tr from-cyan-500/25 via-sky-500/15 to-emerald-500/20 blur-3xl pointer-events-none animate-pulse-slow" />
-            <div className="absolute w-56 sm:w-72 h-56 sm:h-72 rounded-full bg-amber-400/10 blur-2xl pointer-events-none" />
+            <div className="absolute w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-gradient-to-tr from-amber-500/20 via-yellow-500/15 to-emerald-500/15 blur-3xl pointer-events-none animate-pulse-slow" />
+            <div className="absolute w-56 sm:w-72 h-56 sm:h-72 rounded-full bg-amber-400/15 blur-2xl pointer-events-none" />
 
-            {/* Direct Seamless 3D Silicon Processor Canvas */}
+            {/* Direct Seamless 3D Currency Asset Canvas */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative w-full h-[440px] sm:h-[500px] flex items-center justify-center overflow-visible"
             >
-              <QuantumChip3D />
+              <ManagementCurrency3D />
             </motion.div>
           </div>
 

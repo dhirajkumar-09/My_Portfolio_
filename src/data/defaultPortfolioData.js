@@ -6,13 +6,13 @@ export const defaultProfile = {
   location: "Patna, Bihar, India",
   email: "dhirajku00021@gmail.com",
   roles: [
-    "CSE Student",
-    "IoT Enthusiast",
-    "Full-Stack Developer",
-    "Problem Solver"
+    "Business & Management Strategist",
+    "FinTech & Systems Developer",
+    "Product Operations Manager",
+    "Quantitative Problem Solver"
   ],
   typingPrefix: "> I am a",
-  tagline: "Engineering intelligent IoT ecosystems and scalable web architectures that bridge physical hardware with modern cloud intelligence.",
+  tagline: "Bridging scalable software architecture with strategic business management, financial systems, and high-impact product operations.",
   bio: "Motivated, detail-oriented B.Tech student in Computer Science & Engineering with IoT Specialization at Bakhtiyarpur College of Engineering, Patna. Actively seeking an internship or entry-level software/IoT developer role to engineer real-world systems, learn from industry leaders, and contribute impactful solutions.",
   aboutHeading: "About My Engineering Journey",
   aboutSubtitle: "Combining academic rigor with hands-on systems development to build purposeful technology.",
